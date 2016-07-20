@@ -25,28 +25,21 @@ main =
 suite1 : Benchmark.Suite
 suite1 =
     Benchmark.suite "suite1"
-        [ Benchmark.bench "fn1" testfn1 ]
+        [ Benchmark.bench "fn1" testfn1
+        , Benchmark.bench "fn2" testfn2
+        ]
 
 
+testdata : List Int
+testdata =
+    [1..100000]
+
+
+testfn1 : () -> List Int
 testfn1 =
-    \() -> List.map ((+) 1) [1..1000]
+    \() -> List.map ((+) 1) testdata
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( {}, Cmd.none )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    ( model, Cmd.none )
-
-
-view : Model -> Html.Html Msg
-view model =
-    Html.text <| toString model
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+testfn2 : () -> List Int
+testfn2 =
+    \() -> List.map ((*) 7) testdata

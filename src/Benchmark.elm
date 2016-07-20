@@ -15,7 +15,7 @@ type alias Name =
     String
 
 
-bench : Name -> (a -> b) -> Bench
+bench : Name -> (() -> a) -> Bench
 bench =
     Native.Benchmark.bench
 
