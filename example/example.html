@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Main</title>
+    </head>
+    <body>
+        <!-- benchmark.js requires lodash -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/lodash/4.13.1/lodash.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/benchmarkjs/2.1.0/benchmark.js"></script>
+        <script type="text/javascript" src="elm.js"></script>
+
+        <div>See console for benchmark output.</div>
+        <div id="output"></div>
+
+        <script type="text/javascript">
+         Elm.Main.embed(document.getElementById("output"));
+        </script>
+    </body>
+</html>
