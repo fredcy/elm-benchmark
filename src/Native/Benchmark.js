@@ -30,6 +30,8 @@ var _user$project$Native_Benchmark = (function () {
 		console.log(String(event.target));
 	    }).on('complete', function () {
 		console.log('Done with ' + this.name + ' suite.');
+	    }).on('error', function (event) {
+                console.log('Error in ' + this.name + ' suite: ', event.target.error);
 	    }).run();
 	}
 
