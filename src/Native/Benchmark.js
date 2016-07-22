@@ -24,15 +24,28 @@ var _user$project$Native_Benchmark = (function () {
 	    i;
 
 	for (i = 0; i < suites.length; i++) {
-	    suites[i].on('start', function () {
-		console.log('Starting ' + this.name + ' suite.');
-	    }).on('cycle', function (event) {
-		console.log(String(event.target));
-	    }).on('complete', function () {
-		console.log('Done with ' + this.name + ' suite.');
-	    }).on('error', function (event) {
-                console.log('Error in ' + this.name + ' suite: ', event.target.error);
-	    }).run();
+	    suites[i]
+		.on('start', function () {
+		    console.log('Starting ' + this.name + ' suite.');
+		})
+		.on('cycle', function (event) {
+		    console.log(String(event.target));
+		})
+		.on('complete', function () {
+		    console.log('Done with ' + this.name + ' suite.');
+		})
+		.on('error', function (event) {
+		    var suite = this;
+		    // copy suite into array of Benchmarks
+		    var benchArray = Array.prototype.slice.call(suite);
+		    // find the last benchmark with an 'error' field, presumed to be the most recent error
+		    var errored = benchArray.reverse().find(function(e, i, a) { return e.hasOwnProperty('error'); });
+
+		    var erroredName = (typeof errored != 'undefined') ? errored.name : "<unknown>";
+		    console.log('Error in suite ' + suite.name + ', benchmark ' + erroredName + ': ',
+				event.target.error.message);
+		})
+		.run();
 	}
 
 	return program;
