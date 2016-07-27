@@ -1,8 +1,9 @@
 module Main exposing (main)
 
-import Html
+import Html exposing (Html)
 import Html.App
 import Benchmark
+import Task
 
 
 type alias Model =
@@ -10,16 +11,37 @@ type alias Model =
 
 
 type Msg
-    = NoOp
+    = Done Benchmark.Results
+    | Error Benchmark.SuiteError
+    | Event Benchmark.Event
 
 
 main =
-    Html.App.beginnerProgram
-        { model = ()
-        , update = \_ _ -> ()
-        , view = \() -> Html.text "done"
+    Html.App.program
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = (always Sub.none)
         }
-        |> Benchmark.run [ suite1 ]
+
+
+init : ( Model, Cmd Msg )
+init =
+    ( {}
+    , Task.perform Error Done (Benchmark.runTask [ suite1 ])
+    )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg |> Debug.log "msg" of
+        _ ->
+            model ! []
+
+
+view : Model -> Html Msg
+view model =
+    Html.text (toString model)
 
 
 suite1 : Benchmark.Suite
