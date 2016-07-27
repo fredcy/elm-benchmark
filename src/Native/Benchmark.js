@@ -13,7 +13,14 @@ var _user$project$Native_Benchmark = (function () {
 
 	for (i = 0; i < fns.length; i++) {
 	    curr = fns[i];
-	    suite = suite.add(curr.name, curr.fn);
+	    //suite = suite.add(curr.name, curr.fn);
+            suite = suite.add(curr.name, {
+                'defer': true,
+                'fn': function(deferred) {
+                    (curr.fn)();
+                    deferred.resolve();
+                }
+            });
 	}
 
 	return suite;
@@ -35,12 +42,15 @@ var _user$project$Native_Benchmark = (function () {
 	for (i = 0; i < suites.length; i++) {
 	    suites[i]
 		.on('start', function () {
+                    console.log('start', this.name);
                     results.push( {ctor: 'Start', _0: this.name} );
 		})
 		.on('cycle', function (event) {
+                    console.log('cycle', String(event.target));
                     results.push( {ctor: 'Cycle', _0: String(event.target) } );
 		})
 		.on('complete', function () {
+                    console.log('complete', this.name);
                     results.push( {ctor: 'Start', _0: this.name} );
 		})
 		.on('error', function (event) {
@@ -60,7 +70,7 @@ var _user$project$Native_Benchmark = (function () {
                         };
 		    results.push( error );
 		})
-		.run();
+		.run({'async': true});
 	}
         return results;
     }
