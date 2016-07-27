@@ -22,25 +22,26 @@ var _user$project$Native_Benchmark = (function () {
     function runTask(suiteList) {
         return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
             var results = runTaskHelper(suiteList);
-            return callback(_elm_lang$core$Native_Scheduler.succeed( results ));
+            return callback(_elm_lang$core$Native_Scheduler.succeed(
+                _elm_lang$core$Native_List.fromArray( results) ));
         });
     }
 
     function runTaskHelper(suiteList) {
 	var suites = _elm_lang$core$Native_List.toArray(suiteList),
 	    i,
-            results = "";
+            results = [];
 
 	for (i = 0; i < suites.length; i++) {
 	    suites[i]
 		.on('start', function () {
-                    results += ('Starting ' + this.name + ' suite.' + '\n');
+                    results.push( {ctor: 'Start', _0: this.name} );
 		})
 		.on('cycle', function (event) {
-		    results += (String(event.target) + '\n');
+                    results.push( {ctor: 'Cycle', _0: String(event.target) } );
 		})
 		.on('complete', function () {
-		    results += ('Done with ' + this.name + ' suite.' + '\n');
+                    results.push( {ctor: 'Start', _0: this.name} );
 		})
 		.on('error', function (event) {
 		    var suite = this;
@@ -50,8 +51,14 @@ var _user$project$Native_Benchmark = (function () {
 		    var errored = benchArray.reverse().find(function(e, i, a) { return e.hasOwnProperty('error'); });
 
 		    var erroredName = (typeof errored != 'undefined') ? errored.name : "<unknown>";
-		    results += ('Error in suite ' + suite.name + ', benchmark ' + erroredName + ': ' +
-				event.target.error.message + '\n');
+                    var error =
+                        { ctor: 'Error',
+                          _0: { 'suite': suite.name,
+                                'benchmark': erroredName,
+                                'message': event.target.error.message
+                              }
+                        };
+		    results.push( error );
 		})
 		.run();
 	}
@@ -84,7 +91,7 @@ var _user$project$Native_Benchmark = (function () {
 		    console.log('Error in suite ' + suite.name + ', benchmark ' + erroredName + ': ',
 				event.target.error.message);
 		})
-		.run();
+		.run( { 'async': true } );
 	}
 
 	return program;
