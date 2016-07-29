@@ -43,19 +43,19 @@ var _user$project$Native_Benchmark = (function () {
     }
 
     function watch(toTask) {
-        console.log('watch entered');
+        //console.log('watch entered');
         function handleEvent(e) {
-            console.log('benchmarkEvent', e);
+            ///console.log('benchmarkEvent', e);
             var task = toTask(e.detail);
             _elm_lang$core$Native_Scheduler.rawSpawn(task);
         }
 
         return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
-            console.log('watch about to add listener');
+            //console.log('watch about to add listener');
             document.addEventListener('benchmarkEvent', handleEvent);
 
             return function() {
-                console.log('watch return fn called');
+                //console.log('watch return fn called');
                 document.removeEventListener('benchmarkEvent', handleEvent);
             };
         });
@@ -103,7 +103,8 @@ var _user$project$Native_Benchmark = (function () {
                                 'message': event.target.error.message
                               }
                         };
-                    console.log(error);
+                    //console.log(error);
+                    dispatchBenchmarkEvent(event);
 		    results.push( error );
 		})
 		.run({'async': true});

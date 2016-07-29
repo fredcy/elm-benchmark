@@ -3,6 +3,7 @@ module Main exposing (main)
 import Html exposing (Html)
 import Html.App
 import Benchmark
+import Process
 import Task
 
 
@@ -27,9 +28,15 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    ( {}
-    , Task.perform Error Done (Benchmark.runTask [ suite1 ])
-    )
+    let
+        -- Sleep before running the benchmark task so that the subscription can
+        -- take effect before the task runs. Yech.
+        task =
+            Process.sleep 0
+                `Task.andThen` \_ ->
+                                Benchmark.runTask [ suite1 ]
+    in
+        ( {}, Task.perform Error Done task )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
