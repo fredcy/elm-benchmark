@@ -38,7 +38,7 @@ var _user$project$Native_Benchmark = (function () {
     function dispatchBenchmarkEvent(info) {
         var detail = { detail: info };
         var event = new CustomEvent('benchmarkEvent', detail);
-        console.log("dispatching event", event);
+        //console.log("dispatching event", event);
         document.dispatchEvent(event);
     }
 
@@ -50,12 +50,15 @@ var _user$project$Native_Benchmark = (function () {
             _elm_lang$core$Native_Scheduler.rawSpawn(task);
         }
 
-        document.addEventListener('benchmarkEvent', handleEvent);
+        return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+            console.log('watch about to add listener');
+            document.addEventListener('benchmarkEvent', handleEvent);
 
-        return function() {
-            console.log('watch return fn called');
-            document.removeEventListener('benchmarkEvent', handleEvent);
-        };
+            return function() {
+                console.log('watch return fn called');
+                document.removeEventListener('benchmarkEvent', handleEvent);
+            };
+        });
     };
 
     function runTaskHelper(suiteList) {
@@ -67,19 +70,19 @@ var _user$project$Native_Benchmark = (function () {
 	    suites[i]
 		.on('start', function () {
                     var event = {ctor: 'Start', _0: this.name};
-                    console.log(event);
+                    //console.log(event);
                     dispatchBenchmarkEvent(event);
                     results.push(event);
 		})
 		.on('cycle', function (event) {
                     var event = {ctor: 'Cycle', _0: String(event.target) };
-                    console.log(event);
+                    //console.log(event);
                     dispatchBenchmarkEvent(event);
                     results.push(event);
 		})
 		.on('complete', function () {
                     var event = {ctor: 'Complete', _0: this.name};
-                    console.log(event);
+                    //console.log(event);
                     dispatchBenchmarkEvent(event);
                     results.push(event);
 		})

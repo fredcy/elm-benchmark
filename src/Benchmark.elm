@@ -105,8 +105,8 @@ onEffects : Platform.Router msg Event -> List (MySub msg) -> State msg -> Task N
 onEffects router subs state =
     let
         _ =
-            ( router, subs, state ) |> Debug.log "onEffects"
-    in
+            ( router, subs, state )
+      in
         case ( state, subs ) of
             ( Nothing, [] ) ->
                 Task.succeed Nothing
@@ -127,7 +127,7 @@ onSelfMsg : Platform.Router msg Event -> Event -> State msg -> Task Never (State
 onSelfMsg router event state =
     let
         _ =
-            ( router, event, state ) |> Debug.log "onSelfMsg"
+            ( router, event, state )
     in
         case state of
             Nothing ->
