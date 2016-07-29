@@ -12,7 +12,7 @@ type alias Model =
 
 type Msg
     = Done Benchmark.Results
-    | Error Benchmark.SuiteError
+    | Error Benchmark.Error
     | Event Benchmark.Event
 
 
@@ -21,7 +21,7 @@ main =
         { init = init
         , update = update
         , view = view
-        , subscriptions = (always Sub.none)
+        , subscriptions = (\_ -> Benchmark.events Event)
         }
 
 
