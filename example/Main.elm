@@ -8,7 +8,7 @@ import Task
 
 
 type alias Model =
-    {}
+    List Benchmark.Event
 
 
 type Msg
@@ -22,8 +22,13 @@ main =
         { init = init
         , update = update
         , view = view
-        , subscriptions = (\_ -> Benchmark.events Event)
+        , subscriptions = subscriptions
         }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Benchmark.events Event
 
 
 init : ( Model, Cmd Msg )
@@ -36,19 +41,26 @@ init =
                 `Task.andThen` \_ ->
                                 Benchmark.runTask [ suite1 ]
     in
-        ( {}, Task.perform Error Done task )
+        ( [], Task.perform Error Done task )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg |> Debug.log "msg" of
+        Event event ->
+            (model ++ [ event ]) ! []
+
         _ ->
             model ! []
 
 
 view : Model -> Html Msg
 view model =
-    Html.text (toString model)
+    let
+        viewEvent event =
+            Html.li [] [ Html.text (toString event) ]
+    in
+        Html.ol [] (List.map viewEvent model)
 
 
 suite1 : Benchmark.Suite

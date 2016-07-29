@@ -14,7 +14,7 @@ var _user$project$Native_Benchmark = (function () {
 	for (i = 0; i < fns.length; i++) {
 	    curr = fns[i];
             suite = suite.add(curr.name, {
-                'maxTime': 1,   // defaults to 5 (seconds)
+                //'maxTime': 1,   // defaults to 5 (seconds)
                 'defer': true,
                 'fn': function(deferred) {
                     (curr.fn)();
@@ -66,25 +66,25 @@ var _user$project$Native_Benchmark = (function () {
 	    i,
             results = [];
 
+        function recordEvent(event) {
+            console.log('event', event);
+            dispatchBenchmarkEvent(event);
+            results.push(event);
+        }
+
 	for (i = 0; i < suites.length; i++) {
 	    suites[i]
 		.on('start', function () {
                     var event = {ctor: 'Start', _0: this.name};
-                    //console.log(event);
-                    dispatchBenchmarkEvent(event);
-                    results.push(event);
+                    recordEvent(event);
 		})
 		.on('cycle', function (event) {
                     var event = {ctor: 'Cycle', _0: String(event.target) };
-                    //console.log(event);
-                    dispatchBenchmarkEvent(event);
-                    results.push(event);
+                    recordEvent(event);
 		})
 		.on('complete', function () {
                     var event = {ctor: 'Complete', _0: this.name};
-                    //console.log(event);
-                    dispatchBenchmarkEvent(event);
-                    results.push(event);
+                    recordEvent(event);
 		})
 		.on('error', function (event) {
 		    var suite = this;
@@ -103,51 +103,16 @@ var _user$project$Native_Benchmark = (function () {
                                 'message': event.target.error.message
                               }
                         };
-                    //console.log(error);
-                    dispatchBenchmarkEvent(event);
-		    results.push( error );
+                    recordEvent(error);
 		})
 		.run({'async': true});
 	}
         return results;
     }
 
-    function run(suiteList, program) {
-	var suites = _elm_lang$core$Native_List.toArray(suiteList),
-	    i;
-
-	for (i = 0; i < suites.length; i++) {
-	    suites[i]
-		.on('start', function () {
-		    console.log('Starting ' + this.name + ' suite.');
-		})
-		.on('cycle', function (event) {
-		    console.log(String(event.target));
-		})
-		.on('complete', function () {
-		    console.log('Done with ' + this.name + ' suite.');
-		})
-		.on('error', function (event) {
-		    var suite = this;
-		    // copy suite into array of Benchmarks
-		    var benchArray = Array.prototype.slice.call(suite);
-		    // find the last benchmark with an 'error' field, presumed to be the most recent error
-		    var errored = benchArray.reverse().find(function(e, i, a) { return e.hasOwnProperty('error'); });
-
-		    var erroredName = (typeof errored != 'undefined') ? errored.name : "<unknown>";
-		    console.log('Error in suite ' + suite.name + ', benchmark ' + erroredName + ': ',
-				event.target.error.message);
-		})
-		.run( { 'async': true } );
-	}
-
-	return program;
-    }
-
     return {
 	bench: F2(bench),
 	suite: F2(suite),
-	run: F2(run),
         runTask: runTask,
         watch: watch,
     };
