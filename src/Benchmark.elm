@@ -49,9 +49,10 @@ type alias Stats =
 
 
 type Event
-    = Start Name
-    | Cycle { message : String, stats : Stats }
-    | Complete Name
+    = Start { suite: Name, platform: String }
+    | Cycle { suite : Name, benchmark : Name, stats : Stats }
+    | Complete { suite: Name }
+    | Finished
     | BenchError { suite : Name, benchmark : Name, message : String }
 
 

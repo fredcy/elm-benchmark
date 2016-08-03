@@ -9,21 +9,13 @@ var _user$project$Native_Benchmark = (function () {
     }
 
     function suite(options, name, benchmarkList) {
-        console.log('suite', options, name, benchmarkList);
 	var benchmarks = _elm_lang$core$Native_List.toArray(benchmarkList),
 	    suite = new Benchmark.Suite(name),
 	    i, curr;
 
 	for (i = 0; i < benchmarks.length; i++) {
 	    curr = benchmarks[i];
-            suite = suite.add(curr.name, {
-                'maxTime': options.maxTime,
-                'defer': true,
-                'fn': function(deferred) {
-                    (curr.fn)();
-                    deferred.resolve();
-                }
-            });
+            suite = suite.add(curr.name, { fn: curr.fn, maxTime: options.maxTime });
 	}
 
 	return suite;
@@ -69,10 +61,11 @@ var _user$project$Native_Benchmark = (function () {
     function runTaskHelper(suiteList) {
 	var suites = _elm_lang$core$Native_List.toArray(suiteList),
 	    i,
+            completed = 0,
             results = [];       // TODO: no longer needed since running async?
 
         function recordEvent(event) {
-            console.log('event', event);
+            //console.log('event', event);
             dispatchBenchmarkEvent(event);
             results.push(event);
         }
@@ -80,24 +73,25 @@ var _user$project$Native_Benchmark = (function () {
 	for (i = 0; i < suites.length; i++) {
 	    suites[i]
 		.on('start', function () {
-                    var event = {ctor: 'Start', _0: this.name};
+                    console.log('platform', Benchmark.platform);
+                    var event = {ctor: 'Start',
+                                 _0: {
+                                     suite: this.name,
+                                     platform: Benchmark.platform.description
+                                 }
+                                };
                     recordEvent(event);
 		})
 		.on('cycle', function (event) {
-                    console.log('cycle', event);
-                    var stats = {
-                        timeStamp: event.timeStamp, // start time
-                        name: event.target.name,    // benchmark name
-                        period: event.target.times.period, // mean execution time
-                        rme: event.target.stats.rme,       // margin of error as % of mean
-                        samples: event.target.stats.sample.length, // # of samples
-                    };
-                    console.log('stats', stats);
                     var event = {
                         ctor: 'Cycle',
                         _0: {
-                            message: String(event.target),
-                            stats: stats
+                            suite: this.name,
+                            benchmark: event.target.name,
+                            //message: String(event.target),
+                            freq: 1 / event.target.times.period, // mean ops/sec
+                            rme: event.target.stats.rme,       // margin of error as % of mean
+                            samples: event.target.stats.sample.length, // # of samples
                         }
                     };
                     recordEvent(event);
@@ -105,6 +99,10 @@ var _user$project$Native_Benchmark = (function () {
 		.on('complete', function () {
                     var event = {ctor: 'Complete', _0: this.name};
                     recordEvent(event);
+                    completed++;
+                    if (completed == suites.length) {
+                        recordEvent({ctor: 'Finished'});
+                    }
 		})
 		.on('error', function (event) {
 		    var suite = this;

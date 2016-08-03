@@ -40,7 +40,10 @@ init =
             Process.sleep 0
                 `Task.andThen`
                     \_ ->
-                        Benchmark.runTask [ suite1 ]
+                        Benchmark.runTask
+                            [ suite1
+                            , suite2
+                            ]
     in
         ( [], Task.perform Error Started task )
 
@@ -58,12 +61,6 @@ update msg model =
 viewEvent : Benchmark.Event -> Html Msg
 viewEvent event =
     case event of
-        Benchmark.Cycle { message, stats } ->
-            Html.div []
-                [ Html.text message
-                  --, Html.text (toString stats)
-                ]
-
         _ ->
             Html.text (toString event)
 
@@ -78,7 +75,7 @@ view model =
 
 
 options =
-    { maxTime = 1 }
+    { maxTime = 2 }
 
 
 suite1 : Benchmark.Suite
@@ -87,12 +84,24 @@ suite1 =
         "suite1"
         [ Benchmark.bench "fn1" testfn1
         , Benchmark.bench "fn2" testfn2
+        , Benchmark.bench "fn1 again" testfn1
+        ]
+
+
+suite2 : Benchmark.Suite
+suite2 =
+    Benchmark.suiteWithOptions options
+        "suite2"
+        [ Benchmark.bench "fn3" testfn3
+        , Benchmark.bench "fn3 again" testfn3
+        , Benchmark.bench "fn3 another" testfn3
         ]
 
 
 testdata : List Int
 testdata =
-    [1..100000]
+    --[1..100000]
+    [1..10000]
 
 
 testfn1 : () -> List Int
@@ -103,3 +112,32 @@ testfn1 =
 testfn2 : () -> List Int
 testfn2 =
     \() -> List.map ((*) 7) testdata
+
+
+testfn2' : () -> List Int
+testfn2' =
+    let
+        fn i =
+            if i % 10000 == 0 then
+                i |> Debug.log "testfn2'"
+            else
+                i * 7
+    in
+        \() -> List.map fn testdata
+
+
+testfn3 : () -> List Int
+testfn3 =
+    \() -> List.map (\i -> i // 42) testdata
+
+
+testfn3' : () -> List Int
+testfn3' =
+    let
+        fn i =
+            if i % 10000 == 0 then
+                i |> Debug.log "testfn3"
+            else
+                i // 42
+    in
+        \() -> List.map fn testdata
