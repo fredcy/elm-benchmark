@@ -1,6 +1,16 @@
-effect module Benchmark where { subscription = MySub } exposing (..)
-
--- TODO: limit what's exposed
+effect module Benchmark
+    where { subscription = MySub }
+    exposing
+        ( Bench
+        , Suite
+        , Event(..)
+        , Error(..)
+        , bench
+        , suite
+        , suiteWithOptions
+        , runTask
+        , events
+        )
 
 import Native.Benchmark
 import Process
@@ -29,15 +39,30 @@ type Error
     = Failed
 
 
-type Results
-    = List Event
+type alias Stats =
+    { timeStamp : Float
+    , name : String
+    , period : Float
+    , rme : Float
+    , samples : Int
+    }
 
 
 type Event
     = Start Name
-    | Cycle String
+    | Cycle { message : String, stats : Stats }
     | Complete Name
     | BenchError { suite : Name, benchmark : Name, message : String }
+
+
+type alias Options =
+    { maxTime : Int
+    }
+
+
+defaultOptions : Options
+defaultOptions =
+    { maxTime = 5 }
 
 
 {-| Create a `Bench` value from the given benchmark name and function.
@@ -47,11 +72,16 @@ bench =
     Native.Benchmark.bench
 
 
+suiteWithOptions : Options -> Name -> List Bench -> Suite
+suiteWithOptions =
+    Native.Benchmark.suite
+
+
 {-| Create a `Suite` from the name and list of benchmarks.
 -}
 suite : Name -> List Bench -> Suite
 suite =
-    Native.Benchmark.suite
+    suiteWithOptions defaultOptions
 
 
 run : List Suite -> Program x -> Program x
@@ -61,7 +91,7 @@ run =
 
 {-| Create a Task from the Suite.
 -}
-runTask : List Suite -> Task Error Results
+runTask : List Suite -> Task Error (List Event)
 runTask =
     Native.Benchmark.runTask
 
@@ -106,7 +136,7 @@ onEffects router subs state =
     let
         _ =
             ( router, subs, state )
-      in
+    in
         case ( state, subs ) of
             ( Nothing, [] ) ->
                 Task.succeed Nothing
@@ -116,8 +146,9 @@ onEffects router subs state =
 
             ( Nothing, _ ) ->
                 Process.spawn (watch (Platform.sendToSelf router))
-                    `Task.andThen` \watcher ->
-                                    Task.succeed (Just { subs = subs, watcher = watcher })
+                    `Task.andThen`
+                        \watcher ->
+                            Task.succeed (Just { subs = subs, watcher = watcher })
 
             ( Just { watcher }, _ ) ->
                 Task.succeed (Just { subs = subs, watcher = watcher })

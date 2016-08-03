@@ -12,7 +12,7 @@ type alias Model =
 
 
 type Msg
-    = Done Benchmark.Results
+    = Started (List Benchmark.Event)
     | Error Benchmark.Error
     | Event Benchmark.Event
 
@@ -38,10 +38,11 @@ init =
         -- take effect before the task runs. Yech.
         task =
             Process.sleep 0
-                `Task.andThen` \_ ->
-                                Benchmark.runTask [ suite1 ]
+                `Task.andThen`
+                    \_ ->
+                        Benchmark.runTask [ suite1 ]
     in
-        ( [], Task.perform Error Done task )
+        ( [], Task.perform Error Started task )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -54,18 +55,36 @@ update msg model =
             model ! []
 
 
+viewEvent : Benchmark.Event -> Html Msg
+viewEvent event =
+    case event of
+        Benchmark.Cycle { message, stats } ->
+            Html.div []
+                [ Html.text message
+                  --, Html.text (toString stats)
+                ]
+
+        _ ->
+            Html.text (toString event)
+
+
 view : Model -> Html Msg
 view model =
     let
-        viewEvent event =
-            Html.li [] [ Html.text (toString event) ]
+        li x =
+            Html.li [] [ x ]
     in
-        Html.ol [] (List.map viewEvent model)
+        Html.ol [] (List.map (viewEvent >> li) model)
+
+
+options =
+    { maxTime = 1 }
 
 
 suite1 : Benchmark.Suite
 suite1 =
-    Benchmark.suite "suite1"
+    Benchmark.suiteWithOptions options
+        "suite1"
         [ Benchmark.bench "fn1" testfn1
         , Benchmark.bench "fn2" testfn2
         ]
