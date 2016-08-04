@@ -5,6 +5,8 @@ install:
 - npm install -g elm
 script:
 - sh ./scripts/build_example.sh
+after_success:
+- sh ./scripts/deploy.sh
 cache:
   directories:
   - example/elm-stuff/build-artifacts
