@@ -4,6 +4,7 @@ effect module Benchmark
         ( Bench
         , Suite
         , Event(..)
+        , CycleData
         , Error(..)
         , bench
         , suite
@@ -39,19 +40,19 @@ type Error
     = Failed
 
 
-type alias Stats =
-    { timeStamp : Float
-    , name : String
-    , period : Float
+type alias CycleData =
+    { suite : Name
+    , benchmark : Name
+    , freq : Float
     , rme : Float
     , samples : Int
     }
 
 
 type Event
-    = Start { suite: Name, platform: String }
-    | Cycle { suite : Name, benchmark : Name, stats : Stats }
-    | Complete { suite: Name }
+    = Start { suite : Name, platform : String }
+    | Cycle CycleData
+    | Complete { suite : Name }
     | Finished
     | BenchError { suite : Name, benchmark : Name, message : String }
 

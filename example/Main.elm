@@ -5,6 +5,7 @@ import Html.App
 import Benchmark
 import Process
 import Task
+import Numeral
 
 
 type alias Model =
@@ -22,13 +23,8 @@ main =
         { init = init
         , update = update
         , view = view
-        , subscriptions = subscriptions
+        , subscriptions = always (Benchmark.events Event)
         }
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Benchmark.events Event
 
 
 init : ( Model, Cmd Msg )
@@ -58,20 +54,91 @@ update msg model =
             model ! []
 
 
-viewEvent : Benchmark.Event -> Html Msg
-viewEvent event =
-    case event of
-        _ ->
-            Html.text (toString event)
-
-
 view : Model -> Html Msg
 view model =
     let
         li x =
             Html.li [] [ x ]
     in
-        Html.ol [] (List.map (viewEvent >> li) model)
+        Html.div []
+            [ Html.h1 [] [ Html.text "Results" ]
+            , Html.h2 [] [ Html.text "Raw events from benchmark.js" ]
+            , viewRawEvents model
+            , Html.h2 [] [ Html.text "Formatted benchmark results" ]
+            , viewTable model
+            , viewStatus model
+            ]
+
+
+viewStatus : Model -> Html Msg
+viewStatus model =
+    Html.p []
+        [ if List.any isFinishEvent model then
+            Html.text "Done"
+          else
+            Html.text "running ..."
+        ]
+
+
+isFinishEvent : Benchmark.Event -> Bool
+isFinishEvent event =
+    case event of
+        Benchmark.Finished ->
+            True
+
+        _ ->
+            False
+
+
+viewRawEvents : Model -> Html Msg
+viewRawEvents model =
+    let
+        viewRawEvent e =
+            Html.li [] [ Html.text (toString e) ]
+    in
+        Html.ol [] (List.map viewRawEvent model)
+
+
+viewTable : Model -> Html Msg
+viewTable model =
+    let
+        viewResult e =
+            Html.tr []
+                [ Html.td [] [ Html.text e.suite ]
+                , Html.td [] [ Html.text e.benchmark ]
+                , Html.td [] [ Html.text (Numeral.format "0.0" e.freq) ]
+                , Html.td [] [ Html.text (Numeral.format "0.00" e.rme) ]
+                , Html.td [] [ Html.text (toString e.samples) ]
+                ]
+
+        th str =
+            Html.th [] [ Html.text str ]
+    in
+        Html.table []
+            [ Html.thead []
+                (List.map th [ "suite", "benchmark", "freq", "error%", "samples" ])
+            , Html.tbody []
+                (List.filterMap isCycleEvent model |> sortEvents |> List.map viewResult)
+            ]
+
+
+isCycleEvent : Benchmark.Event -> Maybe Benchmark.CycleData
+isCycleEvent event =
+    case event of
+        Benchmark.Cycle data ->
+            Just data
+
+        _ ->
+            Nothing
+
+
+sortEvents : List Benchmark.CycleData -> List Benchmark.CycleData
+sortEvents events =
+    let
+        derivedKey event =
+            event.suite
+    in
+        List.sortBy derivedKey events
 
 
 options =
@@ -114,30 +181,7 @@ testfn2 =
     \() -> List.map ((*) 7) testdata
 
 
-testfn2' : () -> List Int
-testfn2' =
-    let
-        fn i =
-            if i % 10000 == 0 then
-                i |> Debug.log "testfn2'"
-            else
-                i * 7
-    in
-        \() -> List.map fn testdata
-
-
 testfn3 : () -> List Int
 testfn3 =
     \() -> List.map (\i -> i // 42) testdata
 
-
-testfn3' : () -> List Int
-testfn3' =
-    let
-        fn i =
-            if i % 10000 == 0 then
-                i |> Debug.log "testfn3"
-            else
-                i // 42
-    in
-        \() -> List.map fn testdata
