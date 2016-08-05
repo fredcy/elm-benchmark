@@ -76,8 +76,15 @@ var _user$project$Native_Benchmark = (function () {
     function runTask(suiteList) {
         return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
             var suiteArray = _elm_lang$core$Native_List.toArray(suiteList);
+            var results = [];
 
-            var results = runSuites(suiteArray);
+            // Adding this timeout somehow allows any Elm subscription to the
+            // `watch` function to take effect before the suite actually
+            // runs. Without this the first event can be lost.
+            setTimeout(function(){
+                // run the benchmark suites
+                results = runSuites(suiteArray);
+            }, 0);
 
             return callback(_elm_lang$core$Native_Scheduler.succeed(
                 _elm_lang$core$List$reverse( _elm_lang$core$Native_List.fromArray( results) )

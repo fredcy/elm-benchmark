@@ -11,6 +11,8 @@ effect module Benchmark
         , suiteWithOptions
         , runTask
         , events
+        , maybeCycle
+        , isFinished
         )
 
 import Native.Benchmark
@@ -60,6 +62,26 @@ type Event
 type alias Options =
     { maxTime : Int
     }
+
+
+maybeCycle : Event -> Maybe CycleData
+maybeCycle event =
+    case event of
+        Cycle data ->
+            Just data
+
+        _ ->
+            Nothing
+
+
+isFinished : Event -> Bool
+isFinished event =
+    case event of
+        Finished ->
+            True
+
+        _ ->
+            False
 
 
 defaultOptions : Options

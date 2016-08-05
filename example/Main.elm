@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Html exposing (Html)
 import Html.App
+import Html.Attributes as HA
 import Benchmark
 import Process
 import Task
@@ -29,19 +30,15 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    let
-        -- Sleep before running the benchmark task so that the subscription can
-        -- take effect before the task runs. Yech.
-        task =
-            Process.sleep 0
-                `Task.andThen`
-                    \_ ->
-                        Benchmark.runTask
-                            [ suite1
-                            , suite2
-                            ]
-    in
-        ( [], Task.perform Error Started task )
+    ( []
+    , Task.perform Error
+        Started
+        (Benchmark.runTask
+            [ suite1
+            , suite2
+            ]
+        )
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -56,47 +53,21 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    let
-        li x =
-            Html.li [] [ x ]
-    in
-        Html.div []
-            [ Html.h1 [] [ Html.text "Results" ]
-            , Html.h2 [] [ Html.text "Raw events from benchmark.js" ]
-            , viewRawEvents model
-            , Html.h2 [] [ Html.text "Formatted benchmark results" ]
-            , viewTable model
-            , viewStatus model
-            ]
+    Html.div []
+        [ Html.h1 [] [ Html.text "Benchmark results" ]
+        , viewTable model
+        , viewStatus model
+        ]
 
 
 viewStatus : Model -> Html Msg
 viewStatus model =
     Html.p []
-        [ if List.any isFinishEvent model then
+        [ if List.any Benchmark.isFinished model then
             Html.text "Done"
           else
             Html.text "running ..."
         ]
-
-
-isFinishEvent : Benchmark.Event -> Bool
-isFinishEvent event =
-    case event of
-        Benchmark.Finished ->
-            True
-
-        _ ->
-            False
-
-
-viewRawEvents : Model -> Html Msg
-viewRawEvents model =
-    let
-        viewRawEvent e =
-            Html.li [] [ Html.text (toString e) ]
-    in
-        Html.ol [] (List.map viewRawEvent model)
 
 
 viewTable : Model -> Html Msg
@@ -106,9 +77,9 @@ viewTable model =
             Html.tr []
                 [ Html.td [] [ Html.text e.suite ]
                 , Html.td [] [ Html.text e.benchmark ]
-                , Html.td [] [ Html.text (Numeral.format "0.0" e.freq) ]
-                , Html.td [] [ Html.text (Numeral.format "0.00" e.rme) ]
-                , Html.td [] [ Html.text (toString e.samples) ]
+                , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0" e.freq) ]
+                , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0.0" e.rme) ]
+                , Html.td [ HA.class "numeric" ] [ Html.text (toString e.samples) ]
                 ]
 
         th str =
@@ -118,27 +89,12 @@ viewTable model =
             [ Html.thead []
                 (List.map th [ "suite", "benchmark", "freq", "error%", "samples" ])
             , Html.tbody []
-                (List.filterMap isCycleEvent model |> sortEvents |> List.map viewResult)
+                (List.filterMap Benchmark.maybeCycle model |> List.map viewResult)
             ]
 
 
-isCycleEvent : Benchmark.Event -> Maybe Benchmark.CycleData
-isCycleEvent event =
-    case event of
-        Benchmark.Cycle data ->
-            Just data
 
-        _ ->
-            Nothing
-
-
-sortEvents : List Benchmark.CycleData -> List Benchmark.CycleData
-sortEvents events =
-    let
-        derivedKey event =
-            event.suite
-    in
-        List.sortBy derivedKey events
+-- benchmarks and their suites
 
 
 options =
@@ -167,7 +123,6 @@ suite2 =
 
 testdata : List Int
 testdata =
-    --[1..100000]
     [1..10000]
 
 
@@ -184,4 +139,3 @@ testfn2 =
 testfn3 : () -> List Int
 testfn3 =
     \() -> List.map (\i -> i // 42) testdata
-
