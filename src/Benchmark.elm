@@ -5,12 +5,14 @@ effect module Benchmark
         , Suite
         , Event(..)
         , Result
+        , ErrorInfo
         , Error(..)
         , bench
         , suite
         , suiteWithOptions
         , runTask
         , events
+        , defaultOptions
         )
 
 import Native.Benchmark
@@ -49,22 +51,27 @@ type alias Result =
     }
 
 
+type alias ErrorInfo =
+    { suite : Name, benchmark : Name, message : String }
+
+
 type Event
     = Start { suite : Name, platform : String }
     | Cycle Result
     | Complete { suite : Name }
     | Finished
-    | BenchError { suite : Name, benchmark : Name, message : String }
+    | BenchError ErrorInfo
 
 
 type alias Options =
     { maxTime : Int
+    , minTime : Int
     }
 
 
 defaultOptions : Options
 defaultOptions =
-    { maxTime = 5 }
+    { maxTime = 5, minTime = 0 }
 
 
 {-| Create a `Bench` value from the given benchmark name and function.

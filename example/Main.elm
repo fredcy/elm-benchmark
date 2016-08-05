@@ -130,7 +130,11 @@ viewResults model =
 
 
 options =
-    { maxTime = 2 }
+    let
+        defaults =
+            Benchmark.defaultOptions
+    in
+        { defaults | maxTime = 2 }
 
 
 suite1 : Benchmark.Suite
