@@ -10,7 +10,10 @@ import Numeral
 
 
 type alias Model =
-    List Benchmark.Event
+    { results : List Benchmark.Result
+    , done : Bool
+    , platform : Maybe String
+    }
 
 
 type Msg
@@ -30,7 +33,7 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    ( []
+    ( Model [] False Nothing
     , Task.perform Error
         Started
         (Benchmark.runTask
@@ -45,7 +48,21 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg |> Debug.log "msg" of
         Event event ->
-            (model ++ [ event ]) ! []
+            case event of
+                Benchmark.Start { platform } ->
+                    { model | platform = Just platform } ! []
+
+                Benchmark.Cycle result ->
+                    { model | results = model.results ++ [ result ] } ! []
+
+                Benchmark.Complete result ->
+                    model ! []
+
+                Benchmark.Finished ->
+                    { model | done = True } ! []
+
+                Benchmark.BenchError error ->
+                    Debug.crash "benchmark error" error
 
         _ ->
             model ! []
@@ -55,23 +72,38 @@ view : Model -> Html Msg
 view model =
     Html.div []
         [ Html.h1 [] [ Html.text "Benchmark results" ]
-        , viewTable model
+        , viewPlatform model.platform
+        , viewResults model
         , viewStatus model
         ]
+
+
+viewPlatform platformMaybe =
+    case platformMaybe of
+        Just platform ->
+            Html.div []
+                [ Html.h2 [] [ Html.text "Platform" ]
+                , Html.p [] [ Html.text platform ]
+                ]
+
+        Nothing ->
+            Html.text ""
 
 
 viewStatus : Model -> Html Msg
 viewStatus model =
     Html.p []
-        [ if List.any Benchmark.isFinished model then
-            Html.text "Done"
-          else
-            Html.text "running ..."
+        [ Html.text
+            (if model.done then
+                "Done"
+             else
+                "running ..."
+            )
         ]
 
 
-viewTable : Model -> Html Msg
-viewTable model =
+viewResults : Model -> Html Msg
+viewResults model =
     let
         viewResult e =
             Html.tr []
@@ -89,7 +121,7 @@ viewTable model =
             [ Html.thead []
                 (List.map th [ "suite", "benchmark", "freq", "error%", "samples" ])
             , Html.tbody []
-                (List.filterMap Benchmark.maybeCycle model |> List.map viewResult)
+                (List.map viewResult model.results)
             ]
 
 

@@ -4,15 +4,13 @@ effect module Benchmark
         ( Bench
         , Suite
         , Event(..)
-        , CycleData
+        , Result
         , Error(..)
         , bench
         , suite
         , suiteWithOptions
         , runTask
         , events
-        , maybeCycle
-        , isFinished
         )
 
 import Native.Benchmark
@@ -42,7 +40,7 @@ type Error
     = Failed
 
 
-type alias CycleData =
+type alias Result =
     { suite : Name
     , benchmark : Name
     , freq : Float
@@ -53,7 +51,7 @@ type alias CycleData =
 
 type Event
     = Start { suite : Name, platform : String }
-    | Cycle CycleData
+    | Cycle Result
     | Complete { suite : Name }
     | Finished
     | BenchError { suite : Name, benchmark : Name, message : String }
@@ -62,26 +60,6 @@ type Event
 type alias Options =
     { maxTime : Int
     }
-
-
-maybeCycle : Event -> Maybe CycleData
-maybeCycle event =
-    case event of
-        Cycle data ->
-            Just data
-
-        _ ->
-            Nothing
-
-
-isFinished : Event -> Bool
-isFinished event =
-    case event of
-        Finished ->
-            True
-
-        _ ->
-            False
 
 
 defaultOptions : Options
@@ -108,30 +86,30 @@ suite =
     suiteWithOptions defaultOptions
 
 
-run : List Suite -> Program x -> Program x
-run =
-    Native.Benchmark.run
-
-
-{-| Create a Task from the Suite.
+{-| Create a Task from the list of suites.
 -}
 runTask : List Suite -> Task Error (List Event)
 runTask =
     Native.Benchmark.runTask
 
 
+{-| Subscription to benchmark events.
+-}
+events : (Event -> msg) -> Sub msg
+events tagger =
+    subscription (Tagger tagger)
 
--- effect manager
 
-
+{-| Internal task used by this effect manager to watch for events generated from
+the benchmark.js code and wrapper.
+-}
 watch : (Event -> Task Never ()) -> Task x Never
 watch =
     Native.Benchmark.watch
 
 
-events : (Event -> msg) -> Sub msg
-events tagger =
-    subscription (Tagger tagger)
+
+-- effect manager machinery
 
 
 type MySub msg
