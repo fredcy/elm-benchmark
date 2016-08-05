@@ -7995,6 +7995,358 @@ var _elm_lang$html$Html_App$beginnerProgram = function (_p1) {
 };
 var _elm_lang$html$Html_App$map = _elm_lang$virtual_dom$VirtualDom$map;
 
+var _elm_lang$html$Html_Attributes$attribute = _elm_lang$virtual_dom$VirtualDom$attribute;
+var _elm_lang$html$Html_Attributes$contextmenu = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'contextmenu', value);
+};
+var _elm_lang$html$Html_Attributes$draggable = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'draggable', value);
+};
+var _elm_lang$html$Html_Attributes$list = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'list', value);
+};
+var _elm_lang$html$Html_Attributes$maxlength = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'maxlength',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$datetime = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'datetime', value);
+};
+var _elm_lang$html$Html_Attributes$pubdate = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$attribute, 'pubdate', value);
+};
+var _elm_lang$html$Html_Attributes$colspan = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'colspan',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$rowspan = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$attribute,
+		'rowspan',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$property = _elm_lang$virtual_dom$VirtualDom$property;
+var _elm_lang$html$Html_Attributes$stringProperty = F2(
+	function (name, string) {
+		return A2(
+			_elm_lang$html$Html_Attributes$property,
+			name,
+			_elm_lang$core$Json_Encode$string(string));
+	});
+var _elm_lang$html$Html_Attributes$class = function (name) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'className', name);
+};
+var _elm_lang$html$Html_Attributes$id = function (name) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'id', name);
+};
+var _elm_lang$html$Html_Attributes$title = function (name) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'title', name);
+};
+var _elm_lang$html$Html_Attributes$accesskey = function ($char) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'accessKey',
+		_elm_lang$core$String$fromChar($char));
+};
+var _elm_lang$html$Html_Attributes$dir = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'dir', value);
+};
+var _elm_lang$html$Html_Attributes$dropzone = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'dropzone', value);
+};
+var _elm_lang$html$Html_Attributes$itemprop = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'itemprop', value);
+};
+var _elm_lang$html$Html_Attributes$lang = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'lang', value);
+};
+var _elm_lang$html$Html_Attributes$tabindex = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'tabIndex',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$charset = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'charset', value);
+};
+var _elm_lang$html$Html_Attributes$content = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'content', value);
+};
+var _elm_lang$html$Html_Attributes$httpEquiv = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'httpEquiv', value);
+};
+var _elm_lang$html$Html_Attributes$language = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'language', value);
+};
+var _elm_lang$html$Html_Attributes$src = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'src', value);
+};
+var _elm_lang$html$Html_Attributes$height = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'height',
+		_elm_lang$core$Basics$toString(value));
+};
+var _elm_lang$html$Html_Attributes$width = function (value) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'width',
+		_elm_lang$core$Basics$toString(value));
+};
+var _elm_lang$html$Html_Attributes$alt = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'alt', value);
+};
+var _elm_lang$html$Html_Attributes$preload = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'preload', value);
+};
+var _elm_lang$html$Html_Attributes$poster = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'poster', value);
+};
+var _elm_lang$html$Html_Attributes$kind = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'kind', value);
+};
+var _elm_lang$html$Html_Attributes$srclang = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'srclang', value);
+};
+var _elm_lang$html$Html_Attributes$sandbox = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'sandbox', value);
+};
+var _elm_lang$html$Html_Attributes$srcdoc = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'srcdoc', value);
+};
+var _elm_lang$html$Html_Attributes$type$ = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'type', value);
+};
+var _elm_lang$html$Html_Attributes$value = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'value', value);
+};
+var _elm_lang$html$Html_Attributes$defaultValue = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'defaultValue', value);
+};
+var _elm_lang$html$Html_Attributes$placeholder = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'placeholder', value);
+};
+var _elm_lang$html$Html_Attributes$accept = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'accept', value);
+};
+var _elm_lang$html$Html_Attributes$acceptCharset = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'acceptCharset', value);
+};
+var _elm_lang$html$Html_Attributes$action = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'action', value);
+};
+var _elm_lang$html$Html_Attributes$autocomplete = function (bool) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'autocomplete',
+		bool ? 'on' : 'off');
+};
+var _elm_lang$html$Html_Attributes$autosave = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'autosave', value);
+};
+var _elm_lang$html$Html_Attributes$enctype = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'enctype', value);
+};
+var _elm_lang$html$Html_Attributes$formaction = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'formAction', value);
+};
+var _elm_lang$html$Html_Attributes$minlength = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'minLength',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$method = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'method', value);
+};
+var _elm_lang$html$Html_Attributes$name = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'name', value);
+};
+var _elm_lang$html$Html_Attributes$pattern = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'pattern', value);
+};
+var _elm_lang$html$Html_Attributes$size = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'size',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$for = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'htmlFor', value);
+};
+var _elm_lang$html$Html_Attributes$form = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'form', value);
+};
+var _elm_lang$html$Html_Attributes$max = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'max', value);
+};
+var _elm_lang$html$Html_Attributes$min = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'min', value);
+};
+var _elm_lang$html$Html_Attributes$step = function (n) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'step', n);
+};
+var _elm_lang$html$Html_Attributes$cols = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'cols',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$rows = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'rows',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$wrap = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'wrap', value);
+};
+var _elm_lang$html$Html_Attributes$usemap = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'useMap', value);
+};
+var _elm_lang$html$Html_Attributes$shape = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'shape', value);
+};
+var _elm_lang$html$Html_Attributes$coords = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'coords', value);
+};
+var _elm_lang$html$Html_Attributes$challenge = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'challenge', value);
+};
+var _elm_lang$html$Html_Attributes$keytype = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'keytype', value);
+};
+var _elm_lang$html$Html_Attributes$align = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'align', value);
+};
+var _elm_lang$html$Html_Attributes$cite = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'cite', value);
+};
+var _elm_lang$html$Html_Attributes$href = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'href', value);
+};
+var _elm_lang$html$Html_Attributes$target = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'target', value);
+};
+var _elm_lang$html$Html_Attributes$downloadAs = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'download', value);
+};
+var _elm_lang$html$Html_Attributes$hreflang = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'hreflang', value);
+};
+var _elm_lang$html$Html_Attributes$media = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'media', value);
+};
+var _elm_lang$html$Html_Attributes$ping = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'ping', value);
+};
+var _elm_lang$html$Html_Attributes$rel = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'rel', value);
+};
+var _elm_lang$html$Html_Attributes$start = function (n) {
+	return A2(
+		_elm_lang$html$Html_Attributes$stringProperty,
+		'start',
+		_elm_lang$core$Basics$toString(n));
+};
+var _elm_lang$html$Html_Attributes$headers = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'headers', value);
+};
+var _elm_lang$html$Html_Attributes$scope = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'scope', value);
+};
+var _elm_lang$html$Html_Attributes$manifest = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$stringProperty, 'manifest', value);
+};
+var _elm_lang$html$Html_Attributes$boolProperty = F2(
+	function (name, bool) {
+		return A2(
+			_elm_lang$html$Html_Attributes$property,
+			name,
+			_elm_lang$core$Json_Encode$bool(bool));
+	});
+var _elm_lang$html$Html_Attributes$hidden = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'hidden', bool);
+};
+var _elm_lang$html$Html_Attributes$contenteditable = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'contentEditable', bool);
+};
+var _elm_lang$html$Html_Attributes$spellcheck = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'spellcheck', bool);
+};
+var _elm_lang$html$Html_Attributes$async = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'async', bool);
+};
+var _elm_lang$html$Html_Attributes$defer = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'defer', bool);
+};
+var _elm_lang$html$Html_Attributes$scoped = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'scoped', bool);
+};
+var _elm_lang$html$Html_Attributes$autoplay = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'autoplay', bool);
+};
+var _elm_lang$html$Html_Attributes$controls = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'controls', bool);
+};
+var _elm_lang$html$Html_Attributes$loop = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'loop', bool);
+};
+var _elm_lang$html$Html_Attributes$default = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'default', bool);
+};
+var _elm_lang$html$Html_Attributes$seamless = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'seamless', bool);
+};
+var _elm_lang$html$Html_Attributes$checked = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'checked', bool);
+};
+var _elm_lang$html$Html_Attributes$selected = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'selected', bool);
+};
+var _elm_lang$html$Html_Attributes$autofocus = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'autofocus', bool);
+};
+var _elm_lang$html$Html_Attributes$disabled = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'disabled', bool);
+};
+var _elm_lang$html$Html_Attributes$multiple = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'multiple', bool);
+};
+var _elm_lang$html$Html_Attributes$novalidate = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'noValidate', bool);
+};
+var _elm_lang$html$Html_Attributes$readonly = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'readOnly', bool);
+};
+var _elm_lang$html$Html_Attributes$required = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'required', bool);
+};
+var _elm_lang$html$Html_Attributes$ismap = function (value) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'isMap', value);
+};
+var _elm_lang$html$Html_Attributes$download = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'download', bool);
+};
+var _elm_lang$html$Html_Attributes$reversed = function (bool) {
+	return A2(_elm_lang$html$Html_Attributes$boolProperty, 'reversed', bool);
+};
+var _elm_lang$html$Html_Attributes$classList = function (list) {
+	return _elm_lang$html$Html_Attributes$class(
+		A2(
+			_elm_lang$core$String$join,
+			' ',
+			A2(
+				_elm_lang$core$List$map,
+				_elm_lang$core$Basics$fst,
+				A2(_elm_lang$core$List$filter, _elm_lang$core$Basics$snd, list))));
+};
+var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
+
 var _ggb$numeral_elm$Language$Delimiters = F2(
 	function (a, b) {
 		return {thousands: a, decimal: b};
@@ -8634,84 +8986,92 @@ var _user$project$Native_Benchmark = (function () {
     };
 
 
+    function makeTag(name, value) {
+        return { ctor: name, _0: value };
+    }
+
+    function recordEvent(event) {
+        console.log('event', event);
+        dispatchBenchmarkEvent(event);
+    }
+
+
     // Execute the list of benchmark suites as an Elm task
     function runTask(suiteList) {
         return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
-            var results = runTaskHelper(suiteList);
-            return callback(_elm_lang$core$Native_Scheduler.succeed(
-                _elm_lang$core$List$reverse( _elm_lang$core$Native_List.fromArray( results) )
-            ));
+            var suiteArray = _elm_lang$core$Native_List.toArray(suiteList);
+
+            // Adding this timeout somehow allows any Elm subscription to the
+            // `watch` function to take effect before the suite actually
+            // runs. Without this the first event can be lost.
+            setTimeout(function(){
+                // run the benchmark suites
+                runSuites(suiteArray);
+            }, 0);
+
+            return callback(_elm_lang$core$Native_Scheduler.succeed( {ctor: '_Tuple0'} ));
         });
     }
 
-    function runTaskHelper(suiteList) {
-	var suites = _elm_lang$core$Native_List.toArray(suiteList),
-	    i,
-            completed = 0,
-            results = [];       // TODO: no longer needed since running async?
-
-        function recordEvent(event) {
-            //console.log('event', event);
-            dispatchBenchmarkEvent(event);
-            results.push(event);
+    // Run the array of benchmark suites. Since we are running each suite in
+    // "async" mode, each call to `suite.on()...` returns almost immediately. So
+    // that the execution of different suites does not overlap (which would
+    // cause output from different suites to overlap in time) we run one suite
+    // at a time, running the next suite only when the current suite completes.
+    function runSuites(suites) {
+        if (suites.length == 0) {
+            recordEvent({ctor: 'Finished'});
+            return;
         }
+        // else ...
 
-	for (i = 0; i < suites.length; i++) {
-	    suites[i]
-		.on('start', function () {
-                    console.log('platform', Benchmark.platform);
-                    var event = {ctor: 'Start',
-                                 _0: {
-                                     suite: this.name,
-                                     platform: Benchmark.platform.description
-                                 }
-                                };
-                    recordEvent(event);
-		})
-		.on('cycle', function (event) {
-                    var event = {
-                        ctor: 'Cycle',
-                        _0: {
-                            suite: this.name,
-                            benchmark: event.target.name,
-                            //message: String(event.target),
-                            freq: 1 / event.target.times.period, // mean ops/sec
-                            rme: event.target.stats.rme,       // margin of error as % of mean
-                            samples: event.target.stats.sample.length, // # of samples
-                        }
-                    };
-                    recordEvent(event);
-		})
-		.on('complete', function () {
-                    var event = {ctor: 'Complete', _0: this.name};
-                    recordEvent(event);
-                    completed++;
-                    if (completed == suites.length) {
-                        recordEvent({ctor: 'Finished'});
-                    }
-		})
-		.on('error', function (event) {
-		    var suite = this;
-		    // copy suite into array of Benchmarks
-		    var benchArray = Array.prototype.slice.call(suite);
-		    // find the last benchmark with an 'error' field, presumed
-		    // to be the most recent error
-		    var errored = benchArray.reverse().find(function(e, i, a) {
-                        return e.hasOwnProperty('error'); });
+        var suite = suites[0];
+        var remainingSuites = suites.slice(1);
 
-		    var erroredName = (typeof errored != 'undefined') ? errored.name : "<unknown>";
-                    var error =
-                        { ctor: 'BenchError',
-                          _0: { 'suite': suite.name,
-                                'benchmark': erroredName,
-                                'message': event.target.error.message
-                              }
-                        };
-                    recordEvent(error);
-		})
-		.run({'async': true});
-	}
-        return results;
+        suite
+	    .on('start', function () {
+                var event = makeTag('Start', {
+                    suite: this.name,
+                    platform: Benchmark.platform.description
+                });
+                recordEvent(event);
+	    })
+	    .on('cycle', function (event) {
+                var event = makeTag('Cycle', {
+                    suite: this.name,
+                    benchmark: event.target.name,
+                    //message: String(event.target),
+                    freq: 1 / event.target.times.period, // mean ops/sec
+                    rme: event.target.stats.rme,       // margin of error as % of mean
+                    samples: event.target.stats.sample.length, // # of samples
+                });
+                recordEvent(event);
+	    })
+	    .on('complete', function () {
+                var event = makeTag('Complete', this.name);
+                recordEvent(event);
+
+                // recurse to run remaining suites
+                runSuites(remainingSuites);
+	    })
+	    .on('error', function (event) {
+	        var suite = this;
+	        // copy suite into array of Benchmarks
+	        var benchArray = Array.prototype.slice.call(suite);
+	        // find the last benchmark with an 'error' field, presumed
+	        // to be the most recent error
+	        var errored = benchArray.reverse().find(function(e, i, a) {
+                    return e.hasOwnProperty('error'); });
+	        var erroredName = (typeof errored != 'undefined') ? errored.name : "<unknown>";
+
+                var error = makeTag('BenchError', {
+                    'suite': suite.name,
+                    'benchmark': erroredName,
+                    'message': event.target.error.message
+                });
+                recordEvent(error);
+	    })
+	    .run({'async': true});
     }
 
     return {
@@ -8724,23 +9084,22 @@ var _user$project$Native_Benchmark = (function () {
 
 var _user$project$Benchmark$onSelfMsg = F3(
 	function (router, event, state) {
-		var _p0 = {ctor: '_Tuple3', _0: router, _1: event, _2: state};
-		var _p1 = state;
-		if (_p1.ctor === 'Nothing') {
+		var _p0 = state;
+		if (_p0.ctor === 'Nothing') {
 			return _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
 		} else {
-			var send = function (_p2) {
-				var _p3 = _p2;
+			var send = function (_p1) {
+				var _p2 = _p1;
 				return A2(
 					_elm_lang$core$Platform$sendToApp,
 					router,
-					_p3._0(event));
+					_p2._0(event));
 			};
 			return A2(
 				_elm_lang$core$Task$andThen,
 				_elm_lang$core$Task$sequence(
-					A2(_elm_lang$core$List$map, send, _p1._0.subs)),
-				function (_p4) {
+					A2(_elm_lang$core$List$map, send, _p0._0.subs)),
+				function (_p3) {
 					return _elm_lang$core$Task$succeed(state);
 				});
 		}
@@ -8749,10 +9108,9 @@ var _user$project$Benchmark$init = _elm_lang$core$Task$succeed(_elm_lang$core$Ma
 var _user$project$Benchmark$watch = _user$project$Native_Benchmark.watch;
 var _user$project$Benchmark$onEffects = F3(
 	function (router, subs, state) {
-		var _p5 = {ctor: '_Tuple3', _0: router, _1: subs, _2: state};
-		var _p6 = {ctor: '_Tuple2', _0: state, _1: subs};
-		if (_p6._0.ctor === 'Nothing') {
-			if (_p6._1.ctor === '[]') {
+		var _p4 = {ctor: '_Tuple2', _0: state, _1: subs};
+		if (_p4._0.ctor === 'Nothing') {
+			if (_p4._1.ctor === '[]') {
 				return _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
 			} else {
 				return A2(
@@ -8767,28 +9125,27 @@ var _user$project$Benchmark$onEffects = F3(
 					});
 			}
 		} else {
-			if (_p6._1.ctor === '[]') {
+			if (_p4._1.ctor === '[]') {
 				return A2(
 					_elm_lang$core$Task$andThen,
-					_elm_lang$core$Process$kill(_p6._0._0.watcher),
-					function (_p7) {
+					_elm_lang$core$Process$kill(_p4._0._0.watcher),
+					function (_p5) {
 						return _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
 					});
 			} else {
 				return _elm_lang$core$Task$succeed(
 					_elm_lang$core$Maybe$Just(
-						{subs: subs, watcher: _p6._0._0.watcher}));
+						{subs: subs, watcher: _p4._0._0.watcher}));
 			}
 		}
 	});
 var _user$project$Benchmark$runTask = _user$project$Native_Benchmark.runTask;
-var _user$project$Benchmark$run = _user$project$Native_Benchmark.run;
 var _user$project$Benchmark$suiteWithOptions = _user$project$Native_Benchmark.suite;
 var _user$project$Benchmark$bench = _user$project$Native_Benchmark.bench;
 var _user$project$Benchmark$defaultOptions = {maxTime: 5};
 var _user$project$Benchmark$suite = _user$project$Benchmark$suiteWithOptions(_user$project$Benchmark$defaultOptions);
 var _user$project$Benchmark$subscription = _elm_lang$core$Native_Platform.leaf('Benchmark');
-var _user$project$Benchmark$CycleData = F5(
+var _user$project$Benchmark$Result = F5(
 	function (a, b, c, d, e) {
 		return {suite: a, benchmark: b, freq: c, rme: d, samples: e};
 	});
@@ -8819,12 +9176,12 @@ var _user$project$Benchmark$events = function (tagger) {
 		_user$project$Benchmark$Tagger(tagger));
 };
 var _user$project$Benchmark$subMap = F2(
-	function (func, _p8) {
-		var _p9 = _p8;
+	function (func, _p6) {
+		var _p7 = _p6;
 		return _user$project$Benchmark$Tagger(
-			function (_p10) {
+			function (_p8) {
 				return func(
-					_p9._0(_p10));
+					_p7._0(_p8));
 			});
 	});
 _elm_lang$core$Native_Platform.effectManagers['Benchmark'] = {pkg: 'user/project', init: _user$project$Benchmark$init, onEffects: _user$project$Benchmark$onEffects, onSelfMsg: _user$project$Benchmark$onSelfMsg, tag: 'sub', subMap: _user$project$Benchmark$subMap};
@@ -8880,21 +9237,7 @@ var _user$project$Main$suite2 = A3(
 			A2(_user$project$Benchmark$bench, 'fn3 again', _user$project$Main$testfn3),
 			A2(_user$project$Benchmark$bench, 'fn3 another', _user$project$Main$testfn3)
 		]));
-var _user$project$Main$sortEvents = function (events) {
-	var derivedKey = function (event) {
-		return event.suite;
-	};
-	return A2(_elm_lang$core$List$sortBy, derivedKey, events);
-};
-var _user$project$Main$isCycleEvent = function (event) {
-	var _p6 = event;
-	if (_p6.ctor === 'Cycle') {
-		return _elm_lang$core$Maybe$Just(_p6._0);
-	} else {
-		return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _user$project$Main$viewTable = function (model) {
+var _user$project$Main$viewResults = function (model) {
 	var th = function (str) {
 		return A2(
 			_elm_lang$html$Html$th,
@@ -8931,25 +9274,31 @@ var _user$project$Main$viewTable = function (model) {
 					A2(
 					_elm_lang$html$Html$td,
 					_elm_lang$core$Native_List.fromArray(
-						[]),
+						[
+							_elm_lang$html$Html_Attributes$class('numeric')
+						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html$text(
-							A2(_ggb$numeral_elm$Numeral$format, '0.0', e.freq))
+							A2(_ggb$numeral_elm$Numeral$format, '0', e.freq))
 						])),
 					A2(
 					_elm_lang$html$Html$td,
 					_elm_lang$core$Native_List.fromArray(
-						[]),
+						[
+							_elm_lang$html$Html_Attributes$class('numeric')
+						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html$text(
-							A2(_ggb$numeral_elm$Numeral$format, '0.00', e.rme))
+							A2(_ggb$numeral_elm$Numeral$format, '0.0', e.rme))
 						])),
 					A2(
 					_elm_lang$html$Html$td,
 					_elm_lang$core$Native_List.fromArray(
-						[]),
+						[
+							_elm_lang$html$Html_Attributes$class('numeric')
+						]),
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html$text(
@@ -8976,38 +9325,8 @@ var _user$project$Main$viewTable = function (model) {
 				_elm_lang$html$Html$tbody,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
-				A2(
-					_elm_lang$core$List$map,
-					viewResult,
-					_user$project$Main$sortEvents(
-						A2(_elm_lang$core$List$filterMap, _user$project$Main$isCycleEvent, model))))
+				A2(_elm_lang$core$List$map, viewResult, model.results))
 			]));
-};
-var _user$project$Main$viewRawEvents = function (model) {
-	var viewRawEvent = function (e) {
-		return A2(
-			_elm_lang$html$Html$li,
-			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text(
-					_elm_lang$core$Basics$toString(e))
-				]));
-	};
-	return A2(
-		_elm_lang$html$Html$ol,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		A2(_elm_lang$core$List$map, viewRawEvent, model));
-};
-var _user$project$Main$isFinishEvent = function (event) {
-	var _p7 = event;
-	if (_p7.ctor === 'Finished') {
-		return true;
-	} else {
-		return false;
-	}
 };
 var _user$project$Main$viewStatus = function (model) {
 	return A2(
@@ -9016,18 +9335,41 @@ var _user$project$Main$viewStatus = function (model) {
 			[]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				A2(_elm_lang$core$List$any, _user$project$Main$isFinishEvent, model) ? _elm_lang$html$Html$text('Done') : _elm_lang$html$Html$text('running ...')
+				_elm_lang$html$Html$text(
+				model.done ? 'Done' : 'running ...')
 			]));
 };
-var _user$project$Main$view = function (model) {
-	var li = function (x) {
+var _user$project$Main$viewPlatform = function (platformMaybe) {
+	var _p6 = platformMaybe;
+	if (_p6.ctor === 'Just') {
 		return A2(
-			_elm_lang$html$Html$li,
+			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
 				[]),
 			_elm_lang$core$Native_List.fromArray(
-				[x]));
-	};
+				[
+					A2(
+					_elm_lang$html$Html$h2,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('Platform')
+						])),
+					A2(
+					_elm_lang$html$Html$p,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(_p6._0)
+						]))
+				]));
+	} else {
+		return _elm_lang$html$Html$text('');
+	}
+};
+var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -9040,42 +9382,68 @@ var _user$project$Main$view = function (model) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text('Results')
+						_elm_lang$html$Html$text('Benchmark results')
 					])),
-				A2(
-				_elm_lang$html$Html$h2,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('Raw events from benchmark.js')
-					])),
-				_user$project$Main$viewRawEvents(model),
-				A2(
-				_elm_lang$html$Html$h2,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('Formatted benchmark results')
-					])),
-				_user$project$Main$viewTable(model),
+				_user$project$Main$viewPlatform(model.platform),
+				_user$project$Main$viewResults(model),
 				_user$project$Main$viewStatus(model)
 			]));
 };
 var _user$project$Main$update = F2(
 	function (msg, model) {
-		var _p8 = A2(_elm_lang$core$Debug$log, 'msg', msg);
-		if (_p8.ctor === 'Event') {
-			return A2(
-				_elm_lang$core$Platform_Cmd_ops['!'],
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					model,
-					_elm_lang$core$Native_List.fromArray(
-						[_p8._0])),
-				_elm_lang$core$Native_List.fromArray(
-					[]));
+		var _p7 = A2(_elm_lang$core$Debug$log, 'msg', msg);
+		if (_p7.ctor === 'Event') {
+			var _p8 = _p7._0;
+			switch (_p8.ctor) {
+				case 'Start':
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								platform: _elm_lang$core$Maybe$Just(_p8._0.platform)
+							}),
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				case 'Cycle':
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{
+								results: A2(
+									_elm_lang$core$Basics_ops['++'],
+									model.results,
+									_elm_lang$core$Native_List.fromArray(
+										[_p8._0]))
+							}),
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				case 'Complete':
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						model,
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				case 'Finished':
+					return A2(
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
+							{done: true}),
+						_elm_lang$core$Native_List.fromArray(
+							[]));
+				default:
+					return A2(
+						_elm_lang$core$Native_Utils.crash(
+							'Main',
+							{
+								start: {line: 65, column: 21},
+								end: {line: 65, column: 32}
+							}),
+						'benchmark error',
+						_p8._0);
+			}
 		} else {
 			return A2(
 				_elm_lang$core$Platform_Cmd_ops['!'],
@@ -9083,6 +9451,10 @@ var _user$project$Main$update = F2(
 				_elm_lang$core$Native_List.fromArray(
 					[]));
 		}
+	});
+var _user$project$Main$Model = F3(
+	function (a, b, c) {
+		return {results: a, done: b, platform: c};
 	});
 var _user$project$Main$Event = function (a) {
 	return {ctor: 'Event', _0: a};
@@ -9093,22 +9465,22 @@ var _user$project$Main$Error = function (a) {
 var _user$project$Main$Started = function (a) {
 	return {ctor: 'Started', _0: a};
 };
-var _user$project$Main$init = function () {
-	var task = A2(
-		_elm_lang$core$Task$andThen,
-		_elm_lang$core$Process$sleep(0),
-		function (_p9) {
-			return _user$project$Benchmark$runTask(
-				_elm_lang$core$Native_List.fromArray(
-					[_user$project$Main$suite1, _user$project$Main$suite2]));
-		});
-	return {
-		ctor: '_Tuple2',
-		_0: _elm_lang$core$Native_List.fromArray(
+var _user$project$Main$init = {
+	ctor: '_Tuple2',
+	_0: A3(
+		_user$project$Main$Model,
+		_elm_lang$core$Native_List.fromArray(
 			[]),
-		_1: A3(_elm_lang$core$Task$perform, _user$project$Main$Error, _user$project$Main$Started, task)
-	};
-}();
+		false,
+		_elm_lang$core$Maybe$Nothing),
+	_1: A3(
+		_elm_lang$core$Task$perform,
+		_user$project$Main$Error,
+		_user$project$Main$Started,
+		_user$project$Benchmark$runTask(
+			_elm_lang$core$Native_List.fromArray(
+				[_user$project$Main$suite1, _user$project$Main$suite2])))
+};
 var _user$project$Main$main = {
 	main: _elm_lang$html$Html_App$program(
 		{
