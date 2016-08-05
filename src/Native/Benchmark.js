@@ -71,49 +71,43 @@ var _user$project$Native_Benchmark = (function () {
         return { ctor: name, _0: value };
     }
 
+    function recordEvent(event) {
+        console.log('event', event);
+        dispatchBenchmarkEvent(event);
+    }
+
 
     // Execute the list of benchmark suites as an Elm task
     function runTask(suiteList) {
         return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
             var suiteArray = _elm_lang$core$Native_List.toArray(suiteList);
-            var results = [];
 
             // Adding this timeout somehow allows any Elm subscription to the
             // `watch` function to take effect before the suite actually
             // runs. Without this the first event can be lost.
             setTimeout(function(){
                 // run the benchmark suites
-                results = runSuites(suiteArray);
+                runSuites(suiteArray);
             }, 0);
 
-            return callback(_elm_lang$core$Native_Scheduler.succeed(
-                _elm_lang$core$List$reverse( _elm_lang$core$Native_List.fromArray( results) )
-            ));
+            return callback(_elm_lang$core$Native_Scheduler.succeed( {ctor: '_Tuple0'} ));
         });
     }
 
     // Run the array of benchmark suites. Since we are running each suite in
-    // "async" mode, the call to `suite.on()...` returns almost immediately. So
-    // that the suite execution does not overlap (which would cause output from
-    // different suites to overlap in time) we run one suite at a time, running
-    // the next suite only when the current suite completes.
+    // "async" mode, each call to `suite.on()...` returns almost immediately. So
+    // that the execution of different suites does not overlap (which would
+    // cause output from different suites to overlap in time) we run one suite
+    // at a time, running the next suite only when the current suite completes.
     function runSuites(suites) {
-        var results = [];
-
         if (suites.length == 0) {
             recordEvent({ctor: 'Finished'});
-            return [];
+            return;
         }
         // else ...
 
         var suite = suites[0];
         var remainingSuites = suites.slice(1);
-
-        function recordEvent(event) {
-            console.log('event', event);
-            dispatchBenchmarkEvent(event);
-            results.push(event);
-        }
 
         suite
 	    .on('start', function () {
@@ -139,7 +133,7 @@ var _user$project$Native_Benchmark = (function () {
                 recordEvent(event);
 
                 // recurse to run remaining suites
-                results.push( runSuites(remainingSuites) );
+                runSuites(remainingSuites);
 	    })
 	    .on('error', function (event) {
 	        var suite = this;
@@ -159,8 +153,6 @@ var _user$project$Native_Benchmark = (function () {
                 recordEvent(error);
 	    })
 	    .run({'async': true});
-
-        return results;
     }
 
     return {

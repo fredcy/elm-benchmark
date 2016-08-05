@@ -88,7 +88,7 @@ suite =
 
 {-| Create a Task from the list of suites.
 -}
-runTask : List Suite -> Task Error (List Event)
+runTask : List Suite -> Task Error ()
 runTask =
     Native.Benchmark.runTask
 
@@ -135,41 +135,33 @@ init =
 
 onEffects : Platform.Router msg Event -> List (MySub msg) -> State msg -> Task Never (State msg)
 onEffects router subs state =
-    let
-        _ =
-            ( router, subs, state )
-    in
-        case ( state, subs ) of
-            ( Nothing, [] ) ->
-                Task.succeed Nothing
+    case ( state, subs ) of
+        ( Nothing, [] ) ->
+            Task.succeed Nothing
 
-            ( Just { watcher }, [] ) ->
-                Process.kill watcher `Task.andThen` (\_ -> Task.succeed Nothing)
+        ( Just { watcher }, [] ) ->
+            Process.kill watcher `Task.andThen` (\_ -> Task.succeed Nothing)
 
-            ( Nothing, _ ) ->
-                Process.spawn (watch (Platform.sendToSelf router))
-                    `Task.andThen`
-                        \watcher ->
-                            Task.succeed (Just { subs = subs, watcher = watcher })
+        ( Nothing, _ ) ->
+            Process.spawn (watch (Platform.sendToSelf router))
+                `Task.andThen`
+                    \watcher ->
+                        Task.succeed (Just { subs = subs, watcher = watcher })
 
-            ( Just { watcher }, _ ) ->
-                Task.succeed (Just { subs = subs, watcher = watcher })
+        ( Just { watcher }, _ ) ->
+            Task.succeed (Just { subs = subs, watcher = watcher })
 
 
 onSelfMsg : Platform.Router msg Event -> Event -> State msg -> Task Never (State msg)
 onSelfMsg router event state =
-    let
-        _ =
-            ( router, event, state )
-    in
-        case state of
-            Nothing ->
-                Task.succeed Nothing
+    case state of
+        Nothing ->
+            Task.succeed Nothing
 
-            Just { subs } ->
-                let
-                    send (Tagger tagger) =
-                        Platform.sendToApp router (tagger event)
-                in
-                    Task.sequence (List.map send subs)
-                        `Task.andThen` \_ -> Task.succeed state
+        Just { subs } ->
+            let
+                send (Tagger tagger) =
+                    Platform.sendToApp router (tagger event)
+            in
+                Task.sequence (List.map send subs)
+                    `Task.andThen` \_ -> Task.succeed state

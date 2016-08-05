@@ -17,7 +17,7 @@ type alias Model =
 
 
 type Msg
-    = Started (List Benchmark.Event)
+    = Started ()
     | Error Benchmark.Error
     | Event Benchmark.Event
 
