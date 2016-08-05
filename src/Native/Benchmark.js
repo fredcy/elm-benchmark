@@ -67,83 +67,92 @@ var _user$project$Native_Benchmark = (function () {
     };
 
 
+    function makeTag(name, value) {
+        return { ctor: name, _0: value };
+    }
+
+
     // Execute the list of benchmark suites as an Elm task
     function runTask(suiteList) {
         return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
-            var results = runTaskHelper(suiteList);
+            var suiteArray = _elm_lang$core$Native_List.toArray(suiteList);
+
+            var results = runSuites(suiteArray);
+
             return callback(_elm_lang$core$Native_Scheduler.succeed(
                 _elm_lang$core$List$reverse( _elm_lang$core$Native_List.fromArray( results) )
             ));
         });
     }
 
-    function runTaskHelper(suiteList) {
-	var suites = _elm_lang$core$Native_List.toArray(suiteList),
-	    i,
-            completed = 0,
-            results = [];       // TODO: no longer needed since running async?
+    // Run the array of benchmark suites. Since we are running each suite in
+    // "async" mode, the call to `suite.on()...` returns almost immediately. So
+    // that the suite execution does not overlap (which would cause output from
+    // different suites to overlap in time) we run one suite at a time, running
+    // the next suite only when the current suite completes.
+    function runSuites(suites) {
+        var results = [];
+
+        if (suites.length == 0) {
+            recordEvent({ctor: 'Finished'});
+            return [];
+        }
+        // else ...
+
+        var suite = suites[0];
+        var remainingSuites = suites.slice(1);
 
         function recordEvent(event) {
-            //console.log('event', event);
+            console.log('event', event);
             dispatchBenchmarkEvent(event);
             results.push(event);
         }
 
-	for (i = 0; i < suites.length; i++) {
-	    suites[i]
-		.on('start', function () {
-                    console.log('platform', Benchmark.platform);
-                    var event = {ctor: 'Start',
-                                 _0: {
-                                     suite: this.name,
-                                     platform: Benchmark.platform.description
-                                 }
-                                };
-                    recordEvent(event);
-		})
-		.on('cycle', function (event) {
-                    var event = {
-                        ctor: 'Cycle',
-                        _0: {
-                            suite: this.name,
-                            benchmark: event.target.name,
-                            //message: String(event.target),
-                            freq: 1 / event.target.times.period, // mean ops/sec
-                            rme: event.target.stats.rme,       // margin of error as % of mean
-                            samples: event.target.stats.sample.length, // # of samples
-                        }
-                    };
-                    recordEvent(event);
-		})
-		.on('complete', function () {
-                    var event = {ctor: 'Complete', _0: this.name};
-                    recordEvent(event);
-                    completed++;
-                    if (completed == suites.length) {
-                        recordEvent({ctor: 'Finished'});
-                    }
-		})
-		.on('error', function (event) {
-		    var suite = this;
-		    // copy suite into array of Benchmarks
-		    var benchArray = Array.prototype.slice.call(suite);
-		    // find the last benchmark with an 'error' field, presumed
-		    // to be the most recent error
-		    var errored = benchArray.reverse().find(function(e, i, a) {
-                        return e.hasOwnProperty('error'); });
+        suite
+	    .on('start', function () {
+                var event = makeTag('Start', {
+                    suite: this.name,
+                    platform: Benchmark.platform.description
+                });
+                recordEvent(event);
+	    })
+	    .on('cycle', function (event) {
+                var event = makeTag('Cycle', {
+                    suite: this.name,
+                    benchmark: event.target.name,
+                    //message: String(event.target),
+                    freq: 1 / event.target.times.period, // mean ops/sec
+                    rme: event.target.stats.rme,       // margin of error as % of mean
+                    samples: event.target.stats.sample.length, // # of samples
+                });
+                recordEvent(event);
+	    })
+	    .on('complete', function () {
+                var event = makeTag('Complete', this.name);
+                recordEvent(event);
 
-		    var erroredName = (typeof errored != 'undefined') ? errored.name : "<unknown>";
-                    var error =
-                        { ctor: 'BenchError',
-                          _0: { 'suite': suite.name,
-                                'benchmark': erroredName,
-                                'message': event.target.error.message
-                              }
-                        };
-                    recordEvent(error);
-		})
-		.run({'async': true});
-	}
+                // recurse to run remaining suites
+                results.push( runSuites(remainingSuites) );
+	    })
+	    .on('error', function (event) {
+	        var suite = this;
+	        // copy suite into array of Benchmarks
+	        var benchArray = Array.prototype.slice.call(suite);
+	        // find the last benchmark with an 'error' field, presumed
+	        // to be the most recent error
+	        var errored = benchArray.reverse().find(function(e, i, a) {
+                    return e.hasOwnProperty('error'); });
+	        var erroredName = (typeof errored != 'undefined') ? errored.name : "<unknown>";
+
+                var error = makeTag('BenchError', {
+                    'suite': suite.name,
+                    'benchmark': erroredName,
+                    'message': event.target.error.message
+                });
+                recordEvent(error);
+	    })
+	    .run({'async': true});
+
         return results;
     }
 
