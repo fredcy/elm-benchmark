@@ -9142,16 +9142,21 @@ var _user$project$Benchmark$onEffects = F3(
 var _user$project$Benchmark$runTask = _user$project$Native_Benchmark.runTask;
 var _user$project$Benchmark$suiteWithOptions = _user$project$Native_Benchmark.suite;
 var _user$project$Benchmark$bench = _user$project$Native_Benchmark.bench;
-var _user$project$Benchmark$defaultOptions = {maxTime: 5};
+var _user$project$Benchmark$defaultOptions = {maxTime: 5, minTime: 0};
 var _user$project$Benchmark$suite = _user$project$Benchmark$suiteWithOptions(_user$project$Benchmark$defaultOptions);
 var _user$project$Benchmark$subscription = _elm_lang$core$Native_Platform.leaf('Benchmark');
 var _user$project$Benchmark$Result = F5(
 	function (a, b, c, d, e) {
 		return {suite: a, benchmark: b, freq: c, rme: d, samples: e};
 	});
-var _user$project$Benchmark$Options = function (a) {
-	return {maxTime: a};
-};
+var _user$project$Benchmark$ErrorInfo = F3(
+	function (a, b, c) {
+		return {suite: a, benchmark: b, message: c};
+	});
+var _user$project$Benchmark$Options = F2(
+	function (a, b) {
+		return {maxTime: a, minTime: b};
+	});
 var _user$project$Benchmark$Bench = {ctor: 'Bench'};
 var _user$project$Benchmark$Suite = {ctor: 'Suite'};
 var _user$project$Benchmark$Failed = {ctor: 'Failed'};
@@ -9216,7 +9221,12 @@ var _user$project$Main$testfn3 = function (_p4) {
 		},
 		_user$project$Main$testdata);
 };
-var _user$project$Main$options = {maxTime: 2};
+var _user$project$Main$options = function () {
+	var defaults = _user$project$Benchmark$defaultOptions;
+	return _elm_lang$core$Native_Utils.update(
+		defaults,
+		{maxTime: 2});
+}();
 var _user$project$Main$suite1 = A3(
 	_user$project$Benchmark$suiteWithOptions,
 	_user$project$Main$options,
