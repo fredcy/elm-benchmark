@@ -22,6 +22,6 @@ git reset upstream/gh-pages
 
 touch .
 
-git add -A example.html elm.js
+git add -A index.html elm.js
 git commit -m "rebuild pages at ${rev}"
 git push -q upstream HEAD:gh-pages
