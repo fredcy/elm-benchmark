@@ -48,6 +48,7 @@ type alias Result =
     , freq : Float
     , rme : Float
     , samples : Int
+    , sample : List Float
     }
 
 

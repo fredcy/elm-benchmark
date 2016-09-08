@@ -7,6 +7,7 @@ import Benchmark
 import Process
 import Task
 import Numeral
+import Stats
 
 
 type alias Model =
@@ -106,13 +107,19 @@ viewResults : Model -> Html Msg
 viewResults model =
     let
         viewResult e =
-            Html.tr []
-                [ Html.td [] [ Html.text e.suite ]
-                , Html.td [] [ Html.text e.benchmark ]
-                , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0" e.freq) ]
-                , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0.0" e.rme) ]
-                , Html.td [ HA.class "numeric" ] [ Html.text (toString e.samples) ]
-                ]
+            let
+                stats =
+                    Stats.getStats e.sample
+            in
+                Html.tr []
+                    [ Html.td [] [ Html.text e.suite ]
+                    , Html.td [] [ Html.text e.benchmark ]
+                    , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0" e.freq) ]
+                    , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0.0" e.rme) ]
+                    , Html.td [ HA.class "numeric" ] [ Html.text (toString e.samples) ]
+                    , Html.td [ HA.class "numeric" ] [ Html.text (toString (1 / stats.mean)) ]
+                    , Html.td [] [ Html.text (toString stats) ]
+                    ]
 
         th str =
             Html.th [] [ Html.text str ]
