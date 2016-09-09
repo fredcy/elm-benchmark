@@ -73,7 +73,7 @@ var _user$project$Native_Benchmark = (function () {
     // The asyncronous benchmark.js suites started by `runTask` will report
     // results by generating an event via this function.
     function recordEvent(info) {
-        console.log('event', info);
+        ///console.log('event', info);
         var detail = { detail: info };
         var event = new CustomEvent('benchmarkEvent', detail);
         document.dispatchEvent(event);
@@ -121,19 +121,11 @@ var _user$project$Native_Benchmark = (function () {
                 recordEvent(event);
 	    })
 	    .on('cycle', function (event) {
-                console.log("cycle event", event);
-
-                // convert JS array of samples to Elm List
-                var sampleArray = _elm_lang$core$Native_Array.fromJSArray(event.target.stats.sample);
-                var sampleList = _elm_lang$core$Native_Array.toList(sampleArray);
-
+                ///console.log("cycle event", event);
                 var event = makeTag('Cycle', {
                     suite: this.name,
                     benchmark: event.target.name,
-                    freq: 1 / event.target.times.period, // mean ops/sec
-                    rme: event.target.stats.rme,       // margin of error as % of mean
-                    samples: event.target.stats.sample.length, // # of samples
-                    sample: sampleList,
+                    samples: _elm_lang$core$Native_List.fromArray(event.target.stats.sample),
                 });
                 recordEvent(event);
 	    })

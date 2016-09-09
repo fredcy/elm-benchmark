@@ -47,7 +47,7 @@ init =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg |> Debug.log "msg" of
+    case msg of
         Event event ->
             case event of
                 Benchmark.Start { platform } ->
@@ -109,16 +109,17 @@ viewResults model =
         viewResult e =
             let
                 stats =
-                    Stats.getStats e.sample
+                    Stats.getStats e.samples
+
+                meanFreq =
+                    1 / stats.mean
             in
                 Html.tr []
                     [ Html.td [] [ Html.text e.suite ]
                     , Html.td [] [ Html.text e.benchmark ]
-                    , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0" e.freq) ]
-                    , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0.0" e.rme) ]
-                    , Html.td [ HA.class "numeric" ] [ Html.text (toString e.samples) ]
-                    , Html.td [ HA.class "numeric" ] [ Html.text (toString (1 / stats.mean)) ]
-                    , Html.td [] [ Html.text (toString stats) ]
+                    , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0" meanFreq) ]
+                    , Html.td [ HA.class "numeric" ] [ Html.text (Numeral.format "0.0" stats.relativeMarginOfError) ]
+                    , Html.td [ HA.class "numeric" ] [ Html.text (toString stats.size) ]
                     ]
 
         th str =

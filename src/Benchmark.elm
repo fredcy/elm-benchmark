@@ -45,10 +45,7 @@ type Error
 type alias Result =
     { suite : Name
     , benchmark : Name
-    , freq : Float
-    , rme : Float
-    , samples : Int
-    , sample : List Float
+    , samples : List Float
     }
 
 
