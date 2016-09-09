@@ -1,26 +1,6 @@
-module Stats exposing (..)
+module Stats exposing (getStats)
 
 import Array
-
-
-mean : List Float -> Float
-mean vals =
-    let
-        ( n, total ) =
-            summary vals
-    in
-        total / toFloat n
-
-
-{-| Return ( count, sum ) for list of Float values.
--}
-summary : List Float -> ( Int, Float )
-summary vals =
-    let
-        step x ( n, total ) =
-            ( n + 1, total + x )
-    in
-        List.foldl step ( 0, 0.0 ) vals
 
 
 type alias Stats =
