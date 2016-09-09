@@ -18,7 +18,6 @@ type alias Model =
 
 type Msg
     = Started ()
-    | Error Benchmark.Error
     | Event Benchmark.Event
 
 
@@ -34,7 +33,7 @@ main =
 init : ( Model, Cmd Msg )
 init =
     ( Model [] False Nothing
-    , Task.perform Error
+    , Task.perform (\_ -> Debug.crash "Benchmark.runTask failed")
         Started
         (Benchmark.runTask
             [ suite1

@@ -6,7 +6,6 @@ effect module Benchmark
         , Event(..)
         , Result
         , ErrorInfo
-        , Error(..)
         , Stats
         , bench
         , suite
@@ -16,6 +15,16 @@ effect module Benchmark
         , defaultOptions
         , getStats
         )
+
+{-|
+Run timing benchmarks using benchmark.js
+
+# Types
+@docs Bench, Suite, Event, Result, ErrorInfo, Stats
+
+# Functions
+@docs bench, suite, suiteWithOptions, runTask, events, defaultOptions, getStats
+-}
 
 import Native.Benchmark
 import Process
@@ -41,10 +50,8 @@ type alias Name =
     String
 
 
-type Error
-    = Failed
-
-
+{-| The sample times resulting from benchmarking a single function of a suite.
+-}
 type alias Result =
     { suite : Name
     , benchmark : Name
@@ -52,10 +59,15 @@ type alias Result =
     }
 
 
+{-| Information about an error reported by benchmark.js when benchmarking a
+single function of a suite.
+-}
 type alias ErrorInfo =
     { suite : Name, benchmark : Name, message : String }
 
 
+{-| Benchmarking events returned via subscription to `events`
+-}
 type Event
     = Start { suite : Name, platform : String }
     | Cycle Result
@@ -70,6 +82,8 @@ type alias Options =
     }
 
 
+{-| Default `Options` value
+-}
 defaultOptions : Options
 defaultOptions =
     { maxTime = 5, minTime = 0 }
@@ -82,6 +96,8 @@ bench =
     Native.Benchmark.bench
 
 
+{-| Create a `Suite` with given set of options.
+-}
 suiteWithOptions : Options -> Name -> List Bench -> Suite
 suiteWithOptions =
     Native.Benchmark.suite
@@ -96,7 +112,7 @@ suite =
 
 {-| Create a Task from the list of suites.
 -}
-runTask : List Suite -> Task Error ()
+runTask : List Suite -> Task Never ()
 runTask =
     Native.Benchmark.runTask
 
@@ -116,10 +132,14 @@ watch =
     Native.Benchmark.watch
 
 
+{-| Statistics over a set of sample times.
+-}
 type alias Stats =
     Stats.Stats
 
 
+{-| Calculate statistics for the list of sample time values
+-}
 getStats : List Float -> Stats
 getStats =
     Stats.getStats
@@ -161,8 +181,9 @@ onEffects router subs state =
 
         ( Nothing, _ ) ->
             Process.spawn (watch (Platform.sendToSelf router))
-                `Task.andThen` \watcher ->
-                                Task.succeed (Just { subs = subs, watcher = watcher })
+                `Task.andThen`
+                    \watcher ->
+                        Task.succeed (Just { subs = subs, watcher = watcher })
 
         ( Just { watcher }, _ ) ->
             Task.succeed (Just { subs = subs, watcher = watcher })
