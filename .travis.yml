@@ -17,6 +17,5 @@ after_success:
 - sh ./scripts/deploy.sh
 cache:
   directories:
-  - example/elm-stuff/build-artifacts
   - libsysconfcpus
   
