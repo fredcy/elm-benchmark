@@ -1,14 +1,14 @@
 module Main exposing (main)
 
 import Benchmark
-import Program
+import Benchmark.Program
 import Html.App
 
 
 main : Program Never
 main =
     -- Run over range of sizes that should include some stack-overflow cases.
-    Program.program
+    Benchmark.Program.program
         [ suiteN 10
         , suiteN 1000
         , suiteN 100000

@@ -1,4 +1,4 @@
-module Program exposing (program)
+module Benchmark.Program exposing (program)
 
 {-| Provide a driver program that runs a list of benchmark suites and reports
 the results.
@@ -6,7 +6,7 @@ the results.
 This is an example of the Benchmark API and can be used as a default benchmark
 driver.
 
-@doc program
+@docs program
 -}
 
 import Html exposing (Html)

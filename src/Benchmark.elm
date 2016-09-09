@@ -29,7 +29,7 @@ Run timing benchmarks using benchmark.js
 import Native.Benchmark
 import Process
 import Task exposing (Task)
-import Stats
+import Benchmark.Stats as Stats
 
 
 {-| Opaque type for the return from `bench`, representing a single benchmark

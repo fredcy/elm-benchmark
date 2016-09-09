@@ -1,4 +1,4 @@
-module Stats exposing (Stats, getStats)
+module Benchmark.Stats exposing (Stats, getStats)
 
 import Array
 
