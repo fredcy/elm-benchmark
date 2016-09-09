@@ -11,6 +11,9 @@ type alias Stats =
     }
 
 
+{-| Calculate statistics from list of values. This follows what benchmark.js
+does in its `evaluate()` function.
+-}
 getStats : List Float -> Stats
 getStats vals =
     let
@@ -42,7 +45,8 @@ getStats vals =
         }
 
 
-{-| See https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
+{-| Return ( count, mean, variance ) for list of samples.  See
+    https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance
 -}
 onlineVariance : List Float -> ( Int, Float, Float )
 onlineVariance vals =
@@ -80,15 +84,6 @@ onlineVariance vals =
 getCriticalValue : Int -> Float
 getCriticalValue degreesOfFreedom =
     Array.get (degreesOfFreedom - 1) tTable975 |> Maybe.withDefault tInf975
-
-
-tTable95 =
-    [ 6.314, 2.92, 2.353, 2.132, 2.015, 1.943, 1.895, 1.86, 1.833, 1.812, 1.796, 1.782, 1.771, 1.761, 1.753, 1.746, 1.74, 1.734, 1.729, 1.725, 1.721, 1.717, 1.714, 1.711, 1.708, 1.706, 1.703, 1.701, 1.699, 1.697, 1.696, 1.694, 1.692, 1.691, 1.69, 1.688, 1.687, 1.686, 1.685, 1.684, 1.683, 1.682, 1.681, 1.68, 1.679, 1.679, 1.678, 1.677, 1.677, 1.676, 1.675, 1.675, 1.674, 1.674, 1.673, 1.673, 1.672, 1.672, 1.671, 1.671, 1.67, 1.67, 1.669, 1.669, 1.669, 1.668, 1.668, 1.668, 1.667, 1.667, 1.667, 1.666, 1.666, 1.666, 1.665, 1.665, 1.665, 1.665, 1.664, 1.664, 1.664, 1.664, 1.663, 1.663, 1.663, 1.663, 1.663, 1.662, 1.662, 1.662, 1.662, 1.662, 1.661, 1.661, 1.661, 1.661, 1.661, 1.661, 1.66, 1.66 ]
-        |> Array.fromList
-
-
-tInf95 =
-    1.645
 
 
 tTable975 =
