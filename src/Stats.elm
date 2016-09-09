@@ -1,4 +1,4 @@
-module Stats exposing (getStats)
+module Stats exposing (Stats, getStats)
 
 import Array
 

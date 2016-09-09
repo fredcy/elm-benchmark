@@ -7,7 +7,6 @@ import Benchmark
 import Process
 import Task
 import Numeral
-import Stats
 
 
 type alias Model =
@@ -109,7 +108,7 @@ viewResults model =
         viewResult e =
             let
                 stats =
-                    Stats.getStats e.samples
+                    Benchmark.getStats e.samples
 
                 meanFreq =
                     1 / stats.mean

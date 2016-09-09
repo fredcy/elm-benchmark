@@ -7,17 +7,20 @@ effect module Benchmark
         , Result
         , ErrorInfo
         , Error(..)
+        , Stats
         , bench
         , suite
         , suiteWithOptions
         , runTask
         , events
         , defaultOptions
+        , getStats
         )
 
 import Native.Benchmark
 import Process
 import Task exposing (Task)
+import Stats
 
 
 {-| Opaque type for the return from `bench`, representing a single benchmark
@@ -113,6 +116,15 @@ watch =
     Native.Benchmark.watch
 
 
+type alias Stats =
+    Stats.Stats
+
+
+getStats : List Float -> Stats
+getStats =
+    Stats.getStats
+
+
 
 -- effect manager machinery
 
@@ -149,9 +161,8 @@ onEffects router subs state =
 
         ( Nothing, _ ) ->
             Process.spawn (watch (Platform.sendToSelf router))
-                `Task.andThen`
-                    \watcher ->
-                        Task.succeed (Just { subs = subs, watcher = watcher })
+                `Task.andThen` \watcher ->
+                                Task.succeed (Just { subs = subs, watcher = watcher })
 
         ( Just { watcher }, _ ) ->
             Task.succeed (Just { subs = subs, watcher = watcher })
