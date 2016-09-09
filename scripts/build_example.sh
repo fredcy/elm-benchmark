@@ -1,2 +1,3 @@
 cd ./example
-make
+make CONTEXT="$TRAVIS_BUILD_DIR/libsysconfcpus/bin/sysconfcpus -n 2"
+
