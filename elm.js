@@ -3510,17 +3510,40 @@ var incomingPortMap = F2(function subMap(tagger, finalTagger)
 
 function setupIncomingPort(name, callback)
 {
+	var sentBeforeInit = [];
 	var subs = _elm_lang$core$Native_List.Nil;
 	var converter = effectManagers[name].converter;
+	var currentOnEffects = preInitOnEffects;
+	var currentSend = preInitSend;
 
 	// CREATE MANAGER
 
 	var init = _elm_lang$core$Native_Scheduler.succeed(null);
 
-	function onEffects(router, subList, state)
+	function preInitOnEffects(router, subList, state)
+	{
+		var postInitResult = postInitOnEffects(router, subList, state);
+
+		for(var i = 0; i < sentBeforeInit.length; i++)
+		{
+			postInitSend(sentBeforeInit[i]);
+		}
+
+		sentBeforeInit = null; // to release objects held in queue
+		currentSend = postInitSend;
+		currentOnEffects = postInitOnEffects;
+		return postInitResult;
+	}
+
+	function postInitOnEffects(router, subList, state)
 	{
 		subs = subList;
 		return init;
+	}
+
+	function onEffects(router, subList, state)
+	{
+		return currentOnEffects(router, subList, state);
 	}
 
 	effectManagers[name].init = init;
@@ -3528,9 +3551,14 @@ function setupIncomingPort(name, callback)
 
 	// PUBLIC API
 
-	function send(value)
+	function preInitSend(value)
 	{
-		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, value);
+		sentBeforeInit.push(value);
+	}
+
+	function postInitSend(incomingValue)
+	{
+		var result = A2(_elm_lang$core$Json_Decode$decodeValue, converter, incomingValue);
 		if (result.ctor === 'Err')
 		{
 			throw new Error('Trying to send an unexpected type of value through port `' + name + '`:\n' + result._0);
@@ -3543,6 +3571,11 @@ function setupIncomingPort(name, callback)
 			callback(temp._0(value));
 			temp = temp._1;
 		}
+	}
+
+	function send(incomingValue)
+	{
+		currentSend(incomingValue);
 	}
 
 	return { send: send };
@@ -3567,6 +3600,7 @@ return {
 };
 
 }();
+
 var _elm_lang$core$Platform$hack = _elm_lang$core$Native_Scheduler.succeed;
 var _elm_lang$core$Platform$sendToSelf = _elm_lang$core$Native_Platform.sendToSelf;
 var _elm_lang$core$Platform$sendToApp = _elm_lang$core$Native_Platform.sendToApp;
@@ -7662,7 +7696,7 @@ function applyPatch(domNode, patch)
 	switch (patch.type)
 	{
 		case 'p-redraw':
-			return redraw(domNode, patch.data, patch.eventNode);
+			return applyPatchRedraw(domNode, patch.data, patch.eventNode);
 
 		case 'p-facts':
 			applyFacts(domNode, patch.eventNode, patch.data);
@@ -7711,57 +7745,7 @@ function applyPatch(domNode, patch)
 			return domNode;
 
 		case 'p-reorder':
-			var data = patch.data;
-
-			// end inserts
-			var endInserts = data.endInserts;
-			var end;
-			if (typeof endInserts !== 'undefined')
-			{
-				if (endInserts.length === 1)
-				{
-					var insert = endInserts[0];
-					var entry = insert.entry;
-					var end = entry.tag === 'move'
-						? entry.data
-						: render(entry.vnode, patch.eventNode);
-				}
-				else
-				{
-					end = document.createDocumentFragment();
-					for (var i = 0; i < endInserts.length; i++)
-					{
-						var insert = endInserts[i];
-						var entry = insert.entry;
-						var node = entry.tag === 'move'
-							? entry.data
-							: render(entry.vnode, patch.eventNode);
-						end.appendChild(node);
-					}
-				}
-			}
-
-			// removals
-			domNode = applyPatchesHelp(domNode, data.patches);
-
-			// inserts
-			var inserts = data.inserts;
-			for (var i = 0; i < inserts.length; i++)
-			{
-				var insert = inserts[i];
-				var entry = insert.entry;
-				var node = entry.tag === 'move'
-					? entry.data
-					: render(entry.vnode, patch.eventNode);
-				domNode.insertBefore(node, domNode.childNodes[insert.index]);
-			}
-
-			if (typeof end !== 'undefined')
-			{
-				domNode.appendChild(end);
-			}
-
-			return domNode;
+			return applyPatchReorder(domNode, patch);
 
 		case 'p-custom':
 			var impl = patch.data;
@@ -7773,7 +7757,7 @@ function applyPatch(domNode, patch)
 }
 
 
-function redraw(domNode, vNode, eventNode)
+function applyPatchRedraw(domNode, vNode, eventNode)
 {
 	var parentNode = domNode.parentNode;
 	var newNode = render(vNode, eventNode);
@@ -7788,6 +7772,59 @@ function redraw(domNode, vNode, eventNode)
 		parentNode.replaceChild(newNode, domNode);
 	}
 	return newNode;
+}
+
+
+function applyPatchReorder(domNode, patch)
+{
+	var data = patch.data;
+
+	// remove end inserts
+	var frag = applyPatchReorderEndInsertsHelp(data.endInserts, patch);
+
+	// removals
+	domNode = applyPatchesHelp(domNode, data.patches);
+
+	// inserts
+	var inserts = data.inserts;
+	for (var i = 0; i < inserts.length; i++)
+	{
+		var insert = inserts[i];
+		var entry = insert.entry;
+		var node = entry.tag === 'move'
+			? entry.data
+			: render(entry.vnode, patch.eventNode);
+		domNode.insertBefore(node, domNode.childNodes[insert.index]);
+	}
+
+	// add end inserts
+	if (typeof frag !== 'undefined')
+	{
+		domNode.appendChild(frag);
+	}
+
+	return domNode;
+}
+
+
+function applyPatchReorderEndInsertsHelp(endInserts, patch)
+{
+	if (typeof endInserts === 'undefined')
+	{
+		return;
+	}
+
+	var frag = document.createDocumentFragment();
+	for (var i = 0; i < endInserts.length; i++)
+	{
+		var insert = endInserts[i];
+		var entry = insert.entry;
+		frag.appendChild(entry.tag === 'move'
+			? entry.data
+			: render(entry.vnode, patch.eventNode)
+		);
+	}
+	return frag;
 }
 
 
@@ -8938,7 +8975,10 @@ var _ggb$numeral_elm$Numeral$format = _ggb$numeral_elm$Numeral$formatWithLanguag
 
 var _user$project$Native_Benchmark = (function () {
 
+    // API (exposed functions)
+
     // Create an opaque benchmark item (name and function)
+    // bench : String -> (() -> a) -> Benchmark.Bench
     function bench(name, fn) {
 	return {
 	    name: name,
@@ -8946,6 +8986,7 @@ var _user$project$Native_Benchmark = (function () {
 	}
     }
 
+    // suite : Benchmark.Options -> String  -> List Benchmark.Bench -> Benchmark.Suite
     function suite(options, name, benchmarkList) {
 	var benchmarks = _elm_lang$core$Native_List.toArray(benchmarkList),
 	    suite = new Benchmark.Suite(name),
@@ -8960,16 +9001,9 @@ var _user$project$Native_Benchmark = (function () {
     }
 
 
-    // The asyncronous benchmark.js suites started by `runTask` will report
-    // results by generating an event via this function.
-    function dispatchBenchmarkEvent(info) {
-        var detail = { detail: info };
-        var event = new CustomEvent('benchmarkEvent', detail);
-        document.dispatchEvent(event);
-    }
-
     // The Elm effect manager will call this function to monitor the results
     // generated by benchmark suites started by `runTask`.
+    // watch : (Benchmark.Event -> Task Never ()) -> Task x Never
     function watch(toTask) {
         function handleEvent(e) {
             var task = toTask(e.detail);
@@ -8986,13 +9020,19 @@ var _user$project$Native_Benchmark = (function () {
     };
 
 
+    // Internal functions
+
     function makeTag(name, value) {
         return { ctor: name, _0: value };
     }
 
-    function recordEvent(event) {
-        console.log('event', event);
-        dispatchBenchmarkEvent(event);
+    // The asyncronous benchmark.js suites started by `runTask` will report
+    // results by generating an event via this function.
+    function recordEvent(info) {
+        ///console.log('event', info);
+        var detail = { detail: info };
+        var event = new CustomEvent('benchmarkEvent', detail);
+        document.dispatchEvent(event);
     }
 
 
@@ -9037,13 +9077,11 @@ var _user$project$Native_Benchmark = (function () {
                 recordEvent(event);
 	    })
 	    .on('cycle', function (event) {
+                ///console.log("cycle event", event);
                 var event = makeTag('Cycle', {
                     suite: this.name,
                     benchmark: event.target.name,
-                    //message: String(event.target),
-                    freq: 1 / event.target.times.period, // mean ops/sec
-                    rme: event.target.stats.rme,       // margin of error as % of mean
-                    samples: event.target.stats.sample.length, // # of samples
+                    samples: _elm_lang$core$Native_List.fromArray(event.target.stats.sample),
                 });
                 recordEvent(event);
 	    })
@@ -9082,6 +9120,66 @@ var _user$project$Native_Benchmark = (function () {
     };
 })()
 
+var _user$project$Benchmark_Stats$tInf975 = 1.96;
+var _user$project$Benchmark_Stats$tTable975 = _elm_lang$core$Array$fromList(
+	_elm_lang$core$Native_List.fromArray(
+		[12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.16, 2.145, 2.131, 2.12, 2.11, 2.101, 2.093, 2.086, 2.08, 2.074, 2.069, 2.064, 2.06, 2.056, 2.052, 2.048, 2.045, 2.042, 2.04, 2.037, 2.035, 2.032, 2.03, 2.028, 2.026, 2.024, 2.023, 2.021, 2.02, 2.018, 2.017, 2.015, 2.014, 2.013, 2.012, 2.011, 2.01, 2.009, 2.008, 2.007, 2.006, 2.005, 2.004, 2.003, 2.002, 2.002, 2.001, 2.0, 2.0, 1.999, 1.998, 1.998, 1.997, 1.997, 1.996, 1.995, 1.995, 1.994, 1.994, 1.993, 1.993, 1.993, 1.992, 1.992, 1.991, 1.991, 1.99, 1.99, 1.99, 1.989, 1.989, 1.989, 1.988, 1.988, 1.988, 1.987, 1.987, 1.987, 1.986, 1.986, 1.986, 1.986, 1.985, 1.985, 1.985, 1.984, 1.984, 1.984]));
+var _user$project$Benchmark_Stats$getCriticalValue = function (degreesOfFreedom) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		_user$project$Benchmark_Stats$tInf975,
+		A2(_elm_lang$core$Array$get, degreesOfFreedom - 1, _user$project$Benchmark_Stats$tTable975));
+};
+var _user$project$Benchmark_Stats$onlineVariance = function (vals) {
+	var step = F2(
+		function (x, _p0) {
+			var _p1 = _p0;
+			var _p2 = _p1._1;
+			var delta = x - _p2;
+			var n$ = _p1._0 + 1;
+			var mean$ = _p2 + (delta / n$);
+			var m2$ = _p1._2 + (delta * (x - mean$));
+			return {ctor: '_Tuple3', _0: n$, _1: mean$, _2: m2$};
+		});
+	var _p3 = A3(
+		_elm_lang$core$List$foldl,
+		step,
+		{ctor: '_Tuple3', _0: 0, _1: 0.0, _2: 0.0},
+		vals);
+	var n = _p3._0;
+	var mean = _p3._1;
+	var m2 = _p3._2;
+	return (_elm_lang$core$Native_Utils.cmp(n, 2) < 0) ? _elm_lang$core$Native_Utils.crash(
+		'Benchmark.Stats',
+		{
+			start: {line: 75, column: 13},
+			end: {line: 75, column: 24}
+		})('n < 2 in onlineVariance') : {
+		ctor: '_Tuple3',
+		_0: n,
+		_1: mean,
+		_2: m2 / _elm_lang$core$Basics$toFloat(n - 1)
+	};
+};
+var _user$project$Benchmark_Stats$getStats = function (vals) {
+	var _p4 = _user$project$Benchmark_Stats$onlineVariance(vals);
+	var size = _p4._0;
+	var meanVal = _p4._1;
+	var variance = _p4._2;
+	var deviation = _elm_lang$core$Basics$sqrt(variance);
+	var standardError = deviation / _elm_lang$core$Basics$sqrt(
+		_elm_lang$core$Basics$toFloat(size));
+	var degreesOfFreedom = size - 1;
+	var criticalValue = _user$project$Benchmark_Stats$getCriticalValue(degreesOfFreedom);
+	var marginOfError = standardError * criticalValue;
+	var relativeMarginOfError = (marginOfError / meanVal) * 100;
+	return {size: size, mean: meanVal, variance: variance, relativeMarginOfError: relativeMarginOfError};
+};
+var _user$project$Benchmark_Stats$Stats = F4(
+	function (a, b, c, d) {
+		return {size: a, mean: b, variance: c, relativeMarginOfError: d};
+	});
+
 var _user$project$Benchmark$onSelfMsg = F3(
 	function (router, event, state) {
 		var _p0 = state;
@@ -9105,6 +9203,7 @@ var _user$project$Benchmark$onSelfMsg = F3(
 		}
 	});
 var _user$project$Benchmark$init = _elm_lang$core$Task$succeed(_elm_lang$core$Maybe$Nothing);
+var _user$project$Benchmark$getStats = _user$project$Benchmark_Stats$getStats;
 var _user$project$Benchmark$watch = _user$project$Native_Benchmark.watch;
 var _user$project$Benchmark$onEffects = F3(
 	function (router, subs, state) {
@@ -9145,9 +9244,9 @@ var _user$project$Benchmark$bench = _user$project$Native_Benchmark.bench;
 var _user$project$Benchmark$defaultOptions = {maxTime: 5, minTime: 0};
 var _user$project$Benchmark$suite = _user$project$Benchmark$suiteWithOptions(_user$project$Benchmark$defaultOptions);
 var _user$project$Benchmark$subscription = _elm_lang$core$Native_Platform.leaf('Benchmark');
-var _user$project$Benchmark$Result = F5(
-	function (a, b, c, d, e) {
-		return {suite: a, benchmark: b, freq: c, rme: d, samples: e};
+var _user$project$Benchmark$Result = F3(
+	function (a, b, c) {
+		return {suite: a, benchmark: b, samples: c};
 	});
 var _user$project$Benchmark$ErrorInfo = F3(
 	function (a, b, c) {
@@ -9159,7 +9258,6 @@ var _user$project$Benchmark$Options = F2(
 	});
 var _user$project$Benchmark$Bench = {ctor: 'Bench'};
 var _user$project$Benchmark$Suite = {ctor: 'Suite'};
-var _user$project$Benchmark$Failed = {ctor: 'Failed'};
 var _user$project$Benchmark$BenchError = function (a) {
 	return {ctor: 'BenchError', _0: a};
 };
@@ -9191,63 +9289,43 @@ var _user$project$Benchmark$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Benchmark'] = {pkg: 'user/project', init: _user$project$Benchmark$init, onEffects: _user$project$Benchmark$onEffects, onSelfMsg: _user$project$Benchmark$onSelfMsg, tag: 'sub', subMap: _user$project$Benchmark$subMap};
 
-var _user$project$Main$testdata = _elm_lang$core$Native_List.range(1, 10000);
-var _user$project$Main$testfn1 = function (_p0) {
-	var _p1 = _p0;
+var _user$project$Benchmark_Program$viewError = function (error) {
 	return A2(
-		_elm_lang$core$List$map,
-		F2(
-			function (x, y) {
-				return x + y;
-			})(1),
-		_user$project$Main$testdata);
+		_elm_lang$html$Html$li,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html$text(
+				_elm_lang$core$Basics$toString(error))
+			]));
 };
-var _user$project$Main$testfn2 = function (_p2) {
-	var _p3 = _p2;
-	return A2(
-		_elm_lang$core$List$map,
-		F2(
-			function (x, y) {
-				return x * y;
-			})(7),
-		_user$project$Main$testdata);
+var _user$project$Benchmark_Program$viewErrors = function (errors) {
+	return _elm_lang$core$Native_Utils.eq(
+		errors,
+		_elm_lang$core$Native_List.fromArray(
+			[])) ? _elm_lang$html$Html$text('') : A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$h2,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('Errors')
+					])),
+				A2(
+				_elm_lang$html$Html$ul,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				A2(_elm_lang$core$List$map, _user$project$Benchmark_Program$viewError, errors))
+			]));
 };
-var _user$project$Main$testfn3 = function (_p4) {
-	var _p5 = _p4;
-	return A2(
-		_elm_lang$core$List$map,
-		function (i) {
-			return (i / 42) | 0;
-		},
-		_user$project$Main$testdata);
-};
-var _user$project$Main$options = function () {
-	var defaults = _user$project$Benchmark$defaultOptions;
-	return _elm_lang$core$Native_Utils.update(
-		defaults,
-		{maxTime: 2});
-}();
-var _user$project$Main$suite1 = A3(
-	_user$project$Benchmark$suiteWithOptions,
-	_user$project$Main$options,
-	'suite1',
-	_elm_lang$core$Native_List.fromArray(
-		[
-			A2(_user$project$Benchmark$bench, 'fn1', _user$project$Main$testfn1),
-			A2(_user$project$Benchmark$bench, 'fn2', _user$project$Main$testfn2),
-			A2(_user$project$Benchmark$bench, 'fn1 again', _user$project$Main$testfn1)
-		]));
-var _user$project$Main$suite2 = A3(
-	_user$project$Benchmark$suiteWithOptions,
-	_user$project$Main$options,
-	'suite2',
-	_elm_lang$core$Native_List.fromArray(
-		[
-			A2(_user$project$Benchmark$bench, 'fn3', _user$project$Main$testfn3),
-			A2(_user$project$Benchmark$bench, 'fn3 again', _user$project$Main$testfn3),
-			A2(_user$project$Benchmark$bench, 'fn3 another', _user$project$Main$testfn3)
-		]));
-var _user$project$Main$viewResults = function (model) {
+var _user$project$Benchmark_Program$viewResults = function (model) {
 	var th = function (str) {
 		return A2(
 			_elm_lang$html$Html$th,
@@ -9259,62 +9337,72 @@ var _user$project$Main$viewResults = function (model) {
 				]));
 	};
 	var viewResult = function (e) {
-		return A2(
-			_elm_lang$html$Html$tr,
+		if (_elm_lang$core$Native_Utils.eq(
+			e.samples,
 			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A2(
-					_elm_lang$html$Html$td,
+				[]))) {
+			return _elm_lang$core$Maybe$Nothing;
+		} else {
+			var stats = _user$project$Benchmark$getStats(e.samples);
+			var meanFreq = 1 / stats.mean;
+			return _elm_lang$core$Maybe$Just(
+				A2(
+					_elm_lang$html$Html$tr,
 					_elm_lang$core$Native_List.fromArray(
 						[]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(e.suite)
-						])),
-					A2(
-					_elm_lang$html$Html$td,
-					_elm_lang$core$Native_List.fromArray(
-						[]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text(e.benchmark)
-						])),
-					A2(
-					_elm_lang$html$Html$td,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('numeric')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text(
-							A2(_ggb$numeral_elm$Numeral$format, '0', e.freq))
-						])),
-					A2(
-					_elm_lang$html$Html$td,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('numeric')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text(
-							A2(_ggb$numeral_elm$Numeral$format, '0.0', e.rme))
-						])),
-					A2(
-					_elm_lang$html$Html$td,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('numeric')
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text(
-							_elm_lang$core$Basics$toString(e.samples))
-						]))
-				]));
+							A2(
+							_elm_lang$html$Html$td,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text(e.suite)
+								])),
+							A2(
+							_elm_lang$html$Html$td,
+							_elm_lang$core$Native_List.fromArray(
+								[]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text(e.benchmark)
+								])),
+							A2(
+							_elm_lang$html$Html$td,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('numeric')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text(
+									A2(_ggb$numeral_elm$Numeral$format, '0', meanFreq))
+								])),
+							A2(
+							_elm_lang$html$Html$td,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('numeric')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text(
+									A2(_ggb$numeral_elm$Numeral$format, '0.0', stats.relativeMarginOfError))
+								])),
+							A2(
+							_elm_lang$html$Html$td,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('numeric')
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text(
+									_elm_lang$core$Basics$toString(stats.size))
+								]))
+						])));
+		}
 	};
 	return A2(
 		_elm_lang$html$Html$table,
@@ -9330,15 +9418,15 @@ var _user$project$Main$viewResults = function (model) {
 					_elm_lang$core$List$map,
 					th,
 					_elm_lang$core$Native_List.fromArray(
-						['suite', 'benchmark', 'freq', 'error%', 'samples']))),
+						['suite', 'benchmark', 'ops/sec', 'error%', 'samples']))),
 				A2(
 				_elm_lang$html$Html$tbody,
 				_elm_lang$core$Native_List.fromArray(
 					[]),
-				A2(_elm_lang$core$List$map, viewResult, model.results))
+				A2(_elm_lang$core$List$filterMap, viewResult, model.results))
 			]));
 };
-var _user$project$Main$viewStatus = function (model) {
+var _user$project$Benchmark_Program$viewStatus = function (model) {
 	return A2(
 		_elm_lang$html$Html$p,
 		_elm_lang$core$Native_List.fromArray(
@@ -9349,9 +9437,9 @@ var _user$project$Main$viewStatus = function (model) {
 				model.done ? 'Done' : 'running ...')
 			]));
 };
-var _user$project$Main$viewPlatform = function (platformMaybe) {
-	var _p6 = platformMaybe;
-	if (_p6.ctor === 'Just') {
+var _user$project$Benchmark_Program$viewPlatform = function (platformMaybe) {
+	var _p0 = platformMaybe;
+	if (_p0.ctor === 'Just') {
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -9372,14 +9460,14 @@ var _user$project$Main$viewPlatform = function (platformMaybe) {
 						[]),
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html$text(_p6._0)
+							_elm_lang$html$Html$text(_p0._0)
 						]))
 				]));
 	} else {
 		return _elm_lang$html$Html$text('');
 	}
 };
-var _user$project$Main$view = function (model) {
+var _user$project$Benchmark_Program$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -9394,24 +9482,25 @@ var _user$project$Main$view = function (model) {
 					[
 						_elm_lang$html$Html$text('Benchmark results')
 					])),
-				_user$project$Main$viewPlatform(model.platform),
-				_user$project$Main$viewResults(model),
-				_user$project$Main$viewStatus(model)
+				_user$project$Benchmark_Program$viewPlatform(model.platform),
+				_user$project$Benchmark_Program$viewResults(model),
+				_user$project$Benchmark_Program$viewErrors(model.errors),
+				_user$project$Benchmark_Program$viewStatus(model)
 			]));
 };
-var _user$project$Main$update = F2(
+var _user$project$Benchmark_Program$update = F2(
 	function (msg, model) {
-		var _p7 = A2(_elm_lang$core$Debug$log, 'msg', msg);
-		if (_p7.ctor === 'Event') {
-			var _p8 = _p7._0;
-			switch (_p8.ctor) {
+		var _p1 = msg;
+		if (_p1.ctor === 'Event') {
+			var _p2 = _p1._0;
+			switch (_p2.ctor) {
 				case 'Start':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
 						_elm_lang$core$Native_Utils.update(
 							model,
 							{
-								platform: _elm_lang$core$Maybe$Just(_p8._0.platform)
+								platform: _elm_lang$core$Maybe$Just(_p2._0.platform)
 							}),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
@@ -9425,7 +9514,7 @@ var _user$project$Main$update = F2(
 									_elm_lang$core$Basics_ops['++'],
 									model.results,
 									_elm_lang$core$Native_List.fromArray(
-										[_p8._0]))
+										[_p2._0]))
 							}),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
@@ -9445,14 +9534,18 @@ var _user$project$Main$update = F2(
 							[]));
 				default:
 					return A2(
-						_elm_lang$core$Native_Utils.crash(
-							'Main',
+						_elm_lang$core$Platform_Cmd_ops['!'],
+						_elm_lang$core$Native_Utils.update(
+							model,
 							{
-								start: {line: 65, column: 21},
-								end: {line: 65, column: 32}
+								errors: A2(
+									_elm_lang$core$Basics_ops['++'],
+									model.errors,
+									_elm_lang$core$Native_List.fromArray(
+										[_p2._0]))
 							}),
-						'benchmark error',
-						_p8._0);
+						_elm_lang$core$Native_List.fromArray(
+							[]));
 			}
 		} else {
 			return A2(
@@ -9462,44 +9555,111 @@ var _user$project$Main$update = F2(
 					[]));
 		}
 	});
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {results: a, done: b, platform: c};
+var _user$project$Benchmark_Program$Model = F4(
+	function (a, b, c, d) {
+		return {results: a, done: b, platform: c, errors: d};
 	});
-var _user$project$Main$Event = function (a) {
+var _user$project$Benchmark_Program$Event = function (a) {
 	return {ctor: 'Event', _0: a};
 };
-var _user$project$Main$Error = function (a) {
-	return {ctor: 'Error', _0: a};
-};
-var _user$project$Main$Started = function (a) {
+var _user$project$Benchmark_Program$Started = function (a) {
 	return {ctor: 'Started', _0: a};
 };
-var _user$project$Main$init = {
-	ctor: '_Tuple2',
-	_0: A3(
-		_user$project$Main$Model,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		false,
-		_elm_lang$core$Maybe$Nothing),
-	_1: A3(
-		_elm_lang$core$Task$perform,
-		_user$project$Main$Error,
-		_user$project$Main$Started,
-		_user$project$Benchmark$runTask(
+var _user$project$Benchmark_Program$init = function (suites) {
+	return {
+		ctor: '_Tuple2',
+		_0: A4(
+			_user$project$Benchmark_Program$Model,
 			_elm_lang$core$Native_List.fromArray(
-				[_user$project$Main$suite1, _user$project$Main$suite2])))
+				[]),
+			false,
+			_elm_lang$core$Maybe$Nothing,
+			_elm_lang$core$Native_List.fromArray(
+				[])),
+		_1: A3(
+			_elm_lang$core$Task$perform,
+			function (_p3) {
+				return _elm_lang$core$Native_Utils.crash(
+					'Benchmark.Program',
+					{
+						start: {line: 48, column: 27},
+						end: {line: 48, column: 38}
+					})('Benchmark.runTask failed');
+			},
+			_user$project$Benchmark_Program$Started,
+			_user$project$Benchmark$runTask(suites))
+	};
+};
+var _user$project$Benchmark_Program$program = function (suites) {
+	return _elm_lang$html$Html_App$program(
+		{
+			init: _user$project$Benchmark_Program$init(suites),
+			update: _user$project$Benchmark_Program$update,
+			view: _user$project$Benchmark_Program$view,
+			subscriptions: _elm_lang$core$Basics$always(
+				_user$project$Benchmark$events(_user$project$Benchmark_Program$Event))
+		});
+};
+
+var _user$project$Main$newFoldl = F3(
+	function (fn, initial, vals) {
+		var _p0 = vals;
+		if (_p0.ctor === '[]') {
+			return initial;
+		} else {
+			return A2(
+				fn,
+				_p0._0,
+				A3(_user$project$Main$newFoldl, fn, initial, _p0._1));
+		}
+	});
+var _user$project$Main$options = function () {
+	var defaults = _user$project$Benchmark$defaultOptions;
+	return _elm_lang$core$Native_Utils.update(
+		defaults,
+		{maxTime: 2});
+}();
+var _user$project$Main$suiteN = function (size) {
+	var testdata = _elm_lang$core$Native_List.range(1, size);
+	var makeBench = F2(
+		function (name, foldfn) {
+			return A2(
+				_user$project$Benchmark$bench,
+				name,
+				function (_p1) {
+					var _p2 = _p1;
+					return A3(
+						foldfn,
+						F2(
+							function (x, s) {
+								return s + x;
+							}),
+						0,
+						testdata);
+				});
+		});
+	return A3(
+		_user$project$Benchmark$suiteWithOptions,
+		_user$project$Main$options,
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			'size ',
+			_elm_lang$core$Basics$toString(size)),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(makeBench, 'List.foldl', _elm_lang$core$List$foldl),
+				A2(makeBench, 'new foldl', _user$project$Main$newFoldl)
+			]));
 };
 var _user$project$Main$main = {
-	main: _elm_lang$html$Html_App$program(
-		{
-			init: _user$project$Main$init,
-			update: _user$project$Main$update,
-			view: _user$project$Main$view,
-			subscriptions: _elm_lang$core$Basics$always(
-				_user$project$Benchmark$events(_user$project$Main$Event))
-		})
+	main: _user$project$Benchmark_Program$program(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_user$project$Main$suiteN(10),
+				_user$project$Main$suiteN(1000),
+				_user$project$Main$suiteN(100000),
+				_user$project$Main$suiteN(1000000)
+			]))
 };
 
 var Elm = {};
