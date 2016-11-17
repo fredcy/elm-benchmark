@@ -54,19 +54,19 @@ onlineVariance vals =
         step : Float -> ( Int, Float, Float ) -> ( Int, Float, Float )
         step x ( n, mean, m2 ) =
             let
-                n' =
+                n_ =
                     n + 1
 
                 delta =
                     x - mean
 
-                mean' =
-                    mean + delta / n'
+                mean_ =
+                    mean + delta / (toFloat n_)
 
-                m2' =
-                    m2 + delta * (x - mean')
+                m2_ =
+                    m2 + delta * (x - mean_)
             in
-                ( n', mean', m2' )
+                ( n_, mean_, m2_ )
 
         ( n, mean, m2 ) =
             List.foldl step ( 0, 0.0, 0.0 ) vals

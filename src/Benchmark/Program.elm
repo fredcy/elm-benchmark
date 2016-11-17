@@ -1,4 +1,4 @@
-module Benchmark.Program exposing (program)
+module Benchmark.Program exposing (Program, program)
 
 {-| Provide a driver program that runs a list of benchmark suites and reports
 the results.
@@ -10,7 +10,6 @@ driver.
 -}
 
 import Html exposing (Html)
-import Html.App
 import Html.Attributes as HA
 import Benchmark
 import Task
@@ -25,6 +24,10 @@ type alias Model =
     }
 
 
+type alias Program =
+    Platform.Program Never Model Msg
+
+
 type Msg
     = Started ()
     | Event Benchmark.Event
@@ -32,9 +35,9 @@ type Msg
 
 {-| Create driver program from list of suites.
 -}
-program : List Benchmark.Suite -> Program Never
+program : List Benchmark.Suite -> Program
 program suites =
-    Html.App.program
+    Html.program
         { init = init suites
         , update = update
         , view = view
@@ -45,8 +48,7 @@ program suites =
 init : List Benchmark.Suite -> ( Model, Cmd Msg )
 init suites =
     ( Model [] False Nothing []
-    , Task.perform (\_ -> Debug.crash "Benchmark.runTask failed")
-        Started
+    , Task.perform Started
         (Benchmark.runTask suites)
     )
 
