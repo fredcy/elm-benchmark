@@ -1,14 +1,14 @@
 module Main exposing (main)
 
 import Benchmark
-import Benchmark.Program
-import Html.App
+import Benchmark.Program as Benchmark
+import Html
 
 
-main : Program Never
+main : Benchmark.Program
 main =
     -- Run over range of sizes that should include some stack-overflow cases.
-    Benchmark.Program.program
+    Benchmark.program
         [ suiteN 10
         , suiteN 1000
         , suiteN 100000
@@ -16,7 +16,8 @@ main =
         ]
 
 
-{-| Set shorter benchmark time to make it complete more quickly. -}
+{-| Set shorter benchmark time to make it complete more quickly.
+-}
 options =
     let
         defaults =
@@ -30,7 +31,7 @@ options =
 suiteN size =
     let
         testdata =
-            [1..size]
+            List.range 1 size
 
         makeBench name foldfn =
             Benchmark.bench name (\() -> foldfn (\x s -> s + x) 0 testdata)

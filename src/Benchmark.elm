@@ -177,13 +177,14 @@ onEffects router subs state =
             Task.succeed Nothing
 
         ( Just { watcher }, [] ) ->
-            Process.kill watcher `Task.andThen` (\_ -> Task.succeed Nothing)
+            Process.kill watcher |> Task.andThen (\_ -> Task.succeed Nothing)
 
         ( Nothing, _ ) ->
             Process.spawn (watch (Platform.sendToSelf router))
-                `Task.andThen`
-                    \watcher ->
+                |> Task.andThen
+                    (\watcher ->
                         Task.succeed (Just { subs = subs, watcher = watcher })
+                    )
 
         ( Just { watcher }, _ ) ->
             Task.succeed (Just { subs = subs, watcher = watcher })
@@ -201,4 +202,4 @@ onSelfMsg router event state =
                     Platform.sendToApp router (tagger event)
             in
                 Task.sequence (List.map send subs)
-                    `Task.andThen` \_ -> Task.succeed state
+                    |> Task.andThen (\_ -> Task.succeed state)
